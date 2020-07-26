@@ -80,6 +80,7 @@ class VisualArray:
         self.dim = tk.StringVar()
         self.dimEntry = tk.Entry(self.dimension_PromptWindow, font=('Helvetica', 90, 'bold'), justify='center', textvariable=self.dim)
         self.dimEntry.pack(fill=tk.X)
+        self.dimEntry.focus()
 
         # Button to direct user to next GUI.
         self.nextButton = tk.Button(self.dimension_PromptWindow, text='NEXT', font='Helvetica 60 bold', command=lambda: valid_Dimension())
@@ -125,6 +126,7 @@ class VisualArray:
         self.listBox.select_set(0)
         self.listBox.pack(fill=tk.BOTH, pady=10)
         self.frame.pack(pady=(40, 20), fill=tk.X)
+        self.listBox.focus()
 
         # Button to direct user to next GUI.
         self.nextButton = tk.Button(self.dataTypePrompt_Window, text='NEXT', font='Helvetica 60 bold', command=lambda: selected_DataType())
@@ -171,6 +173,7 @@ class VisualArray:
                 self.listBox.insert(tk.END, key)
 
             self.listBox.pack(side=tk.RIGHT)
+            self.listBox.focus()
 
             # If the content of the array exceeds 11, then insert a scroll bar left of the listbox.
             if self.listBox.size() >= 11:
@@ -191,7 +194,7 @@ class VisualArray:
             # Array Method Buttons.
             self.insertButton = tk.Button(self.methodsFrame, text='INSERT', font='HELVETICA 30 bold', width=20, command=lambda: self.insert()).pack(fill=tk.X, pady=10)
             self.deleteButton = tk.Button(self.methodsFrame, text='DELETE', font='HELVETICA 30 bold', width=20, command=lambda: self.delete()).pack(fill=tk.X, pady=10)
-            self.searchButton = tk.Button(self.methodsFrame, text='SEARCH', font='HELVETICA 30 bold', width=20).pack(fill=tk.X, pady=10)
+            self.searchButton = tk.Button(self.methodsFrame, text='SEARCH', font='HELVETICA 30 bold', width=20, command=lambda: self.search()).pack(fill=tk.X, pady=10)
             self.splitButton = tk.Button(self.methodsFrame, text='SPLIT', font='HELVETICA 30 bold', width=20).pack(fill=tk.X, pady=10)
             self.sortButton = tk.Button(self.methodsFrame, text='SORT', font='HELVETICA 30 bold', width=20).pack(fill=tk.X, pady=10)
             self.filterButton = tk.Button(self.methodsFrame, text='FILTER', font='HELVETICA 30 bold', width=20).pack(fill=tk.X, pady=10)
@@ -263,6 +266,7 @@ class VisualArray:
         self.label6.pack(fill=tk.X, padx=20, pady=20)
         self.elementEntry = tk.Entry(self.insertElement_Window, font='HELVETICA 24 bold', justify='center', textvariable=self.element)
         self.elementEntry.pack(fill=tk.X, padx=20)
+        self.elementEntry.focus()
         self.label7 = tk.Label(self.insertElement_Window, text='@ Index: ', bg='gray28', fg='white', font='HELVETICA 20 bold', textvariable=self.index)
         self.label7.pack(fill=tk.X, padx=20, pady=20)
         self.indexEntry = tk.Entry(self.insertElement_Window, font='HELVETICA 24 bold', justify='center')
@@ -346,6 +350,7 @@ class VisualArray:
         self.label8.pack(fill=tk.X, padx=20, pady=20)
         self.indexDeleteEntry = tk.Entry(self.deleteIndex_Window, font='HELVETICA 24 bold', justify='center')
         self.indexDeleteEntry.pack(fill=tk.X, padx=20)
+        self.indexDeleteEntry.focus()
         self.deleteButton = tk.Button(self.deleteIndex_Window, text='DELETE', font='HELVETICA 24 bold', command=lambda: remove())
         self.deleteButton.pack(fill=tk.X, padx=20, pady=20)
 
@@ -356,6 +361,99 @@ class VisualArray:
         self.deleteIndex_Window.bind('<Return>', bind5)
         self.deleteIndex_Window.resizable(False, False)
         self.deleteIndex_Window.mainloop()
+
+    def search(self):
+
+        # Method find's element in given array.
+        def find():
+
+            def searchBind():
+                self.displaySearch_Window.destroy()
+                self.search()
+
+            def doneBind():
+                self.displaySearch_Window.destroy()
+
+            try:
+                self.searchedIndex = self.array.index(self.indexSearchEntry.get())
+                self.searchedElement = self.indexSearchEntry.get()
+                print('Element [' + str(self.indexSearchEntry.get()) + '] found @ index: ' + str(self.searchedIndex))
+                self.searchWindow.destroy()
+
+                self.displaySearch_Window = tk.Tk()
+
+                self.label12 = tk.Label(self.displaySearch_Window, text='Element: ' + str(self.searchedElement), bg='black', fg='white', font='HELVETICA 44 bold')
+                self.label12.pack(fill=tk.X, padx=10, pady=(10, 10))
+
+                self.label13 = tk.Label(self.displaySearch_Window, text='Index: ' + str(self.searchedIndex), bg='gray20', fg='white', font='HELVETICA 54 bold')
+                self.label13.pack(fill=tk.X, padx=10)
+
+                self.bottomFrame = tk.Frame(self.displaySearch_Window, bg='indianred')
+
+                self.searchAgainButton = tk.Button(self.bottomFrame, text='SEARCH', font='HELVETICA 24 bold', width=10, command=lambda: searchBind())
+                self.searchAgainButton.pack(side=tk.LEFT, fill=tk.X)
+
+                self.doneButton = tk.Button(self.bottomFrame, text='DONE', font='HELVETICA 24 bold', width=10, command=lambda: doneBind())
+                self.doneButton.pack(side=tk.RIGHT, fill=tk.X, padx=1)
+
+                self.bottomFrame.pack(fill=tk.BOTH, padx=10, pady=10)
+
+                self.displaySearch_Window.title('Search Complete')
+                self.displaySearch_Window.minsize(400, 225)
+                self.displaySearch_Window.config(bg='indianred')
+                self.displaySearch_Window.resizable(False, False)
+                self.displaySearch_Window.mainloop()
+
+            except ValueError:
+
+                def bind9(event):
+                    self.ValueError_Window.destroy()
+                    self.ValueError_Window.quit()
+
+                self.ValueError_Window = tk.Tk()
+
+                self.label14 = tk.Label(self.ValueError_Window, text='Could not locate the element:')
+                self.label14.config(bg='indianred', fg='white', font='HELVETICA 22 bold')
+                self.label14.pack(fill=tk.X, padx=10, pady=(20, 0))
+
+                self.label15 = tk.Label(self.ValueError_Window, text='[' + str(self.indexSearchEntry.get()) + ']')
+                self.label15.config(bg='gray24', fg='thistle', font='HELVETICA 20 bold')
+                self.label15.pack(fill=tk.X, padx=25, pady=10)
+
+                self.label16 = tk.Label(self.ValueError_Window, text='within the specified array.')
+                self.label16.config(bg='indianred', fg='white', font='HELVETICA 20 bold')
+                self.label16.pack(fill=tk.X, padx=10)
+
+                self.closeButton = tk.Button(self.ValueError_Window, text='CLOSE', width=20, font='HELVETICA 22 bold', command=lambda: self.ValueError_Window.destroy())
+                self.closeButton.pack(fill=tk.X, padx=20, pady=20)
+
+                self.ValueError_Window.title('Value Error:')
+                self.ValueError_Window.minsize(400, 225)
+                self.ValueError_Window.resizable(False, False)
+                self.ValueError_Window.config(bg='indianred')
+                self.ValueError_Window.bind('<Return>', bind9)
+                self.ValueError_Window.mainloop()
+
+        def bind8(event):
+            find()
+
+        self.searchWindow = tk.Tk()
+
+        self.label11 = tk.Label(self.searchWindow, text='Search for element:', bg='gray28', fg='white', font='HELVETICA 20 bold')
+        self.label11.pack(fill=tk.X, padx=20, pady=20)
+        self.indexSearchEntry = tk.Entry(self.searchWindow, font='HELVETICA 24 bold', justify='center')
+        self.indexSearchEntry.pack(fill=tk.X, padx=20)
+        self.indexSearchEntry.focus()
+        self.searchButton = tk.Button(self.searchWindow, text='SEARCH', font='HELVETICA 24 bold', command=lambda: find())
+        self.searchButton.pack(fill=tk.X, padx=20, pady=20)
+
+        self.searchWindow.geometry('400x225')
+        self.searchWindow.title('Search:')
+        self.searchWindow.config(bg='indianred')
+        self.searchWindow.minsize(400, 225)
+        self.searchWindow.bind('<Return>', bind8)
+        self.searchWindow.resizable(False, False)
+        self.searchWindow.mainloop()
 
     # Getter methods.
     def get_NumDimensions(self):
