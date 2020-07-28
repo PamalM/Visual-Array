@@ -30,6 +30,13 @@ class VisualArray:
         self.arrayAttributeLabel = tk.Label()
         self.msg = None
         self.shapeScale = tk.Scale()
+        self.elementEntry = tk.Entry()
+        self.indexEntry = tk.Entry()
+        self.element = None
+        self.index = None
+        self.indexDeleteEntry = tk.Entry()
+        self.indexSearchEntry = tk.Entry()
+        self.alpha = None
 
         # Method checks to ensure that the number of dimensions entered by the user is between (1-3).
         # If valid, direct user to next screen; Else, display a notice window.
@@ -172,7 +179,17 @@ class VisualArray:
 
     # Method displays the array alongside the methods and tasks that can be performed on the array. 
     def arrayHub(self, master):
-        self.master = master
+        # The terminal method directs the user depending on the tag specified.
+        # (InsertWindow = 1, DeleteWindow = 2, SearchWindow = 3, SplitWindow = 4, SortWindow = 5, FilterWindow = 6)
+        def terminal(tag):
+            root = tk.Toplevel()
+            if tag == 1:
+                self.insert(root)
+            elif tag == 2:
+                self.delete(root)
+            elif tag ==3:
+                self.search(root)
+            root.mainloop()
 
         # Method destroys array hub window and restarts application.
         def restart():
@@ -181,6 +198,8 @@ class VisualArray:
             root = tk.Tk()
             self.__init__(root)
             root.mainloop()
+
+        self.master = master
 
         # Frame to listbox containing array elements.
         self.arrayFrame = tk.Frame(self.master, bg='indianred')
@@ -214,9 +233,9 @@ class VisualArray:
         label2.pack(fill=tk.X, pady=10)
 
         # Array Method Buttons.
-        self.insertButton = tk.Button(self.methodsFrame, text='INSERT', font='HELVETICA 30 bold', width=20, command=lambda: self.insert()).pack(fill=tk.X, pady=10)
-        self.deleteButton = tk.Button(self.methodsFrame, text='DELETE', font='HELVETICA 30 bold', width=20, command=lambda: self.delete()).pack(fill=tk.X, pady=10)
-        self.searchButton = tk.Button(self.methodsFrame, text='SEARCH', font='HELVETICA 30 bold', width=20, command=lambda: self.search()).pack(fill=tk.X, pady=10)
+        self.insertButton = tk.Button(self.methodsFrame, text='INSERT', font='HELVETICA 30 bold', width=20, command=lambda: terminal(1)).pack(fill=tk.X, pady=10)
+        self.deleteButton = tk.Button(self.methodsFrame, text='DELETE', font='HELVETICA 30 bold', width=20, command=lambda: terminal(2)).pack(fill=tk.X, pady=10)
+        self.searchButton = tk.Button(self.methodsFrame, text='SEARCH', font='HELVETICA 30 bold', width=20, command=lambda: terminal(3)).pack(fill=tk.X, pady=10)
         self.splitButton = tk.Button(self.methodsFrame, text='SPLIT', font='HELVETICA 30 bold', width=20).pack(fill=tk.X, pady=10)
         self.sortButton = tk.Button(self.methodsFrame, text='SORT', font='HELVETICA 30 bold', width=20).pack(fill=tk.X, pady=10)
         self.filterButton = tk.Button(self.methodsFrame, text='FILTER', font='HELVETICA 30 bold', width=20).pack(fill=tk.X, pady=10)
@@ -238,15 +257,17 @@ class VisualArray:
         self.master.mainloop()
 
     # Method inserts element at given location in array.
-    def insert(self):
+    def insert(self, master):
 
         def add():
             try:
                 self.array.insert(int(int(self.indexEntry.get())), self.elementEntry.get())
                 print('Inserted [' + str(self.elementEntry.get()) + '] @ Index ' + str(self.indexEntry.get()))
-                self.insertElement_Window.destroy()
-                self.insertElement_Window.quit()
-                self.arrayHub(1)
+                self.master.destroy()
+                self.master.quit()
+                root = tk.Tk()
+                self.arrayHub(root)
+                root.mainloop()
             except ValueError:
                 # Display an error window if the entered element/index cannot be added into the array.
                 self.valError_Window = tk.Tk()
@@ -272,36 +293,38 @@ class VisualArray:
         self.element = tk.StringVar()
         self.index = tk.StringVar()
 
-        self.insertElement_Window = tk.Tk()
+        self.alpha = master
 
-        self.label6 = tk.Label(self.insertElement_Window, text='Insert Element:', bg='gray28', fg='white', font='HELVETICA 20 bold')
-        self.label6.pack(fill=tk.X, padx=20, pady=20)
-        self.elementEntry = tk.Entry(self.insertElement_Window, font='HELVETICA 24 bold', justify='center', textvariable=self.element)
+        self.label1 = tk.Label(self.alpha, text='Insert Element:', bg='gray28', fg='white', font='HELVETICA 20 bold')
+        self.label1.pack(fill=tk.X, padx=20, pady=20)
+        self.elementEntry = tk.Entry(self.alpha, font='HELVETICA 24 bold', justify='center', textvariable=self.element)
         self.elementEntry.pack(fill=tk.X, padx=20)
         self.elementEntry.focus()
-        self.label7 = tk.Label(self.insertElement_Window, text='@ Index: ', bg='gray28', fg='white', font='HELVETICA 20 bold', textvariable=self.index)
-        self.label7.pack(fill=tk.X, padx=20, pady=20)
-        self.indexEntry = tk.Entry(self.insertElement_Window, font='HELVETICA 24 bold', justify='center')
+        self.label2 = tk.Label(self.alpha, text='@ Index: ', bg='gray28', fg='white', font='HELVETICA 20 bold', textvariable=self.index)
+        self.label2.pack(fill=tk.X, padx=20, pady=20)
+        self.indexEntry = tk.Entry(self.alpha, font='HELVETICA 24 bold', justify='center')
         self.indexEntry.pack(fill=tk.X, padx=20)
-        self.insertButton = tk.Button(self.insertElement_Window, text='INSERT', font='HELVETICA 24 bold', command=lambda: add())
+        self.insertButton = tk.Button(self.alpha, text='INSERT', font='HELVETICA 24 bold', command=lambda: add())
         self.insertButton.pack(fill=tk.X, padx=20, pady=20)
 
-        self.insertElement_Window.geometry('400x300')
-        self.insertElement_Window.title('INSERT:')
-        self.insertElement_Window.config(bg='indianred')
-        self.insertElement_Window.minsize(400, 300)
-        self.insertElement_Window.bind('<Return>', lambda cmd: add())
-        self.insertElement_Window.mainloop()
+        self.alpha.geometry('400x300')
+        self.alpha.title('INSERT:')
+        self.alpha.config(bg='indianred')
+        self.alpha.minsize(400, 300)
+        self.alpha.bind('<Return>', lambda cmd: add())
+        self.alpha.mainloop()
 
     # Method removes element at given location in array.
-    def delete(self):
+    def delete(self, master):
         def remove():
             try:
                 self.elementRemoved = self.array.pop(int(self.indexDeleteEntry.get()))
                 print('Deleted element [' + str(self.elementRemoved) + '] @ Index [' + str(self.indexDeleteEntry.get()) + "]")
-                self.deleteIndex_Window.destroy()
-                self.deleteIndex_Window.quit()
-                self.arrayHub(1)
+                self.master.destroy()
+                self.master.quit()
+                tunnel = tk.Tk()
+                self.arrayHub(tunnel)
+                tunnel.mainloop()
 
             except IndexError:
                 self.indexError_Window = tk.Tk()
@@ -342,29 +365,29 @@ class VisualArray:
                 self.valError_Window.bind('<Return>', lambda cmd: self.valError_Window.destroy())
                 self.valError_Window.mainloop()
 
+        self.alpha = master
+
         # String variable holds the index to be deleted.
         self.index = tk.StringVar()
 
-        self.deleteIndex_Window = tk.Tk()
-
-        self.label8 = tk.Label(self.deleteIndex_Window, text='Delete Index:', bg='gray28', fg='white', font='HELVETICA 20 bold')
-        self.label8.pack(fill=tk.X, padx=20, pady=20)
-        self.indexDeleteEntry = tk.Entry(self.deleteIndex_Window, font='HELVETICA 24 bold', justify='center')
+        self.label1 = tk.Label(self.alpha, text='Delete Index:', bg='gray28', fg='white', font='HELVETICA 20 bold')
+        self.label1.pack(fill=tk.X, padx=20, pady=20)
+        self.indexDeleteEntry = tk.Entry(self.alpha, font='HELVETICA 24 bold', justify='center')
         self.indexDeleteEntry.pack(fill=tk.X, padx=20)
         self.indexDeleteEntry.focus()
-        self.deleteButton = tk.Button(self.deleteIndex_Window, text='DELETE', font='HELVETICA 24 bold', command=lambda: remove())
+        self.deleteButton = tk.Button(self.alpha, text='DELETE', font='HELVETICA 24 bold', command=lambda: remove())
         self.deleteButton.pack(fill=tk.X, padx=20, pady=20)
 
-        self.deleteIndex_Window.geometry('400x225')
-        self.deleteIndex_Window.title('INSERT:')
-        self.deleteIndex_Window.config(bg='indianred')
-        self.deleteIndex_Window.minsize(400, 225)
-        self.deleteIndex_Window.bind('<Return>', lambda cmd: remove())
-        self.deleteIndex_Window.resizable(False, False)
-        self.deleteIndex_Window.mainloop()
+        self.alpha.geometry('400x225')
+        self.alpha.title('INSERT:')
+        self.alpha.config(bg='indianred')
+        self.alpha.minsize(400, 225)
+        self.alpha.bind('<Return>', lambda cmd: remove())
+        self.alpha.resizable(False, False)
+        self.alpha.mainloop()
 
-    def search(self):
-
+    # Method searches array for specified element from user.
+    def search(self, master):
         # Method find's element in given array.
         def find():
 
@@ -376,7 +399,7 @@ class VisualArray:
                 self.searchedIndex = self.array.index(self.indexSearchEntry.get())
                 self.searchedElement = self.indexSearchEntry.get()
                 print('Element [' + str(self.indexSearchEntry.get()) + '] found @ index: ' + str(self.searchedIndex))
-                self.searchWindow.destroy()
+                self.alpha.destroy()
 
                 self.displaySearch_Window = tk.Tk()
 
@@ -422,23 +445,24 @@ class VisualArray:
                 self.ValueError_Window.bind('<Return>', lambda cmd: self.ValueError_Window.destroy())
                 self.ValueError_Window.mainloop()
 
-        self.searchWindow = tk.Tk()
+        self.alpha = master
 
-        self.label11 = tk.Label(self.searchWindow, text='Search for element:', bg='gray28', fg='white', font='HELVETICA 20 bold')
-        self.label11.pack(fill=tk.X, padx=20, pady=20)
-        self.indexSearchEntry = tk.Entry(self.searchWindow, font='HELVETICA 24 bold', justify='center')
+        self.label1 = tk.Label(self.alpha, text='Search for element:', bg='gray28', fg='white', font='HELVETICA 20 bold')
+        self.label1.pack(fill=tk.X, padx=20, pady=20)
+        self.indexSearchEntry = tk.Entry(self.alpha, font='HELVETICA 24 bold', justify='center')
         self.indexSearchEntry.pack(fill=tk.X, padx=20)
         self.indexSearchEntry.focus()
-        self.searchButton = tk.Button(self.searchWindow, text='SEARCH', font='HELVETICA 24 bold', command=lambda: find())
+        self.searchButton = tk.Button(self.alpha, text='SEARCH', font='HELVETICA 24 bold', command=lambda: find())
         self.searchButton.pack(fill=tk.X, padx=20, pady=20)
 
-        self.searchWindow.geometry('400x225')
-        self.searchWindow.title('Search:')
-        self.searchWindow.config(bg='indianred')
-        self.searchWindow.minsize(400, 225)
-        self.searchWindow.bind('<Return>', lambda cmd: find())
-        self.searchWindow.resizable(False, False)
-        self.searchWindow.mainloop()
+        # Search window attributes.
+        self.alpha.geometry('400x225')
+        self.alpha.title('Search:')
+        self.alpha.config(bg='indianred')
+        self.alpha.minsize(400, 225)
+        self.alpha.bind('<Return>', lambda cmd: find())
+        self.alpha.resizable(False, False)
+        self.alpha.mainloop()
 
     # Getter method.
     def get_NumDimensions(self):
