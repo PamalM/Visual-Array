@@ -12,7 +12,7 @@ class VisualArray:
         self.numDimensions = None
         self.dataType = None
         self.array = []
-        self.shape = None   # Shape of array = (numDimensions, shape)
+        self.shape = 1   # Shape of array = (numDimensions, shape); Default=1
 
         # Tkinter attributes.
         self.master = master
@@ -139,28 +139,40 @@ class VisualArray:
 
     # Method prompts user for the shape of the array.
     def prompt_ArrayShape(self, master):
+
+        # Method transfers the user from the array Shape GUI to the array hub GUI.
+        def transfer():
+            self.master.destroy()
+            self.master.quit()
+            root = tk.Tk()
+            self.arrayHub(root)
+            root.mainloop()
+
         self.master = master
 
-        self.label = tk.Label(self.master, text='')
+        self.label1 = tk.Label(self.master, text='SELECT THE NUMBER OF ELEMENTS PER DIMENSION:', font='HELVETICA 20 bold', bg='salmon', fg='white')
+        self.label1.pack(fill=tk.X, padx=20, pady=(25, 0))
 
-        shapeScale = tk.Scale(self.master, from_=1, to=10, orient=tk.HORIZONTAL, activebackground='yellow', tickinterval=9)
+        shapeScale = tk.Scale(self.master, from_=1, to=10, orient=tk.HORIZONTAL, activebackground='yellow', tickinterval=9, relief=tk.GROOVE)
+        shapeScale.config(command=self.set_Shape)
         shapeScale.config(background='gray25', fg='white', font='HELVETICA 24 bold', relief=tk.GROOVE, sliderlength=100, sliderrelief=tk.RAISED)
-        shapeScale.pack(fill=tk.X, padx=20, pady=25)
+        shapeScale.pack(fill=tk.X, padx=20, pady=(0, 25))
         shapeScale.focus()
 
         # Button to direct user to next GUI.
-        self.nextButton = tk.Button(self.master, text='NEXT', font='Helvetica 60 bold').pack(fill=tk.X, padx=20, pady=25)
+        self.nextButton = tk.Button(self.master, text='NEXT', font='Helvetica 60 bold', command= lambda: transfer()).pack(fill=tk.X, padx=20, pady=25)
 
         # dimension_PromptWindow attributes.
         self.master.title('Visual Array')
         self.master.configure(bg='indianred3')
-        self.master.geometry('600x400')
-        self.master.minsize(600, 400)
-        self.master.bind("<Return>", lambda cmd: print('Hello'))
+        self.master.geometry('600x300')
+        self.master.minsize(600, 300)
+        self.master.bind("<Return>", lambda cmd: transfer())
         master.mainloop()
 
     # Method displays the array alongside the methods and tasks that can be performed on the array. 
     def arrayHub(self, master):
+        self.master = master
 
         # Method destroys array hub window and restarts application.
         def restart():
@@ -440,6 +452,10 @@ class VisualArray:
     def get_Array(self):
         return self.array
 
+    # Getter method.
+    def get_Shape(self):
+        return self.shape
+
     # Setter method.
     def set_NumDimensions(self, val):
         self.numDimensions = val
@@ -447,6 +463,10 @@ class VisualArray:
     # Setter method.
     def set_DataType(self, val):
         self.dataType = val
+
+    # Setter method.
+    def set_Shape(self, val):
+        self.shape = val
 
 
 def main():
