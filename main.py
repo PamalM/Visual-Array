@@ -37,6 +37,7 @@ class VisualArray:
         self.indexDeleteEntry = tk.Entry()
         self.indexSearchEntry = tk.Entry()
         self.alpha = None
+        self.bottomFrame = tk.Frame()
 
         # Method checks to ensure that the number of dimensions entered by the user is between (1-3).
         # If valid, direct user to next screen; Else, display a notice window.
@@ -99,6 +100,7 @@ class VisualArray:
         self.master.geometry('600x400')
         self.master.minsize(600, 400)
         self.master.bind("<Return>", lambda cmd: valid_Dimension())
+        self.master.resizable(False, False)
         self.master.mainloop()
 
     # Prompts user for data Type for array.
@@ -141,6 +143,7 @@ class VisualArray:
         self.master.title('Visual Array')
         self.master.configure(bg='indianred3')
         self.master.minsize(600, 375)
+        self.master.resizable(False, False)
         self.master.bind("<Return>", lambda cmd: selection())
         self.master.mainloop()
 
@@ -175,6 +178,7 @@ class VisualArray:
         self.master.geometry('600x300')
         self.master.minsize(600, 300)
         self.master.bind("<Return>", lambda cmd: transfer())
+        self.master.resizable(False, False)
         master.mainloop()
 
     # Method displays the array alongside the methods and tasks that can be performed on the array. 
@@ -187,8 +191,10 @@ class VisualArray:
                 self.insert(root)
             elif tag == 2:
                 self.delete(root)
-            elif tag ==3:
+            elif tag == 3:
                 self.search(root)
+            elif tag == 4:
+                self.split_(root)
             root.mainloop()
 
         # Method destroys array hub window and restarts application.
@@ -236,24 +242,38 @@ class VisualArray:
         self.insertButton = tk.Button(self.methodsFrame, text='INSERT', font='HELVETICA 30 bold', width=20, command=lambda: terminal(1)).pack(fill=tk.X, pady=10)
         self.deleteButton = tk.Button(self.methodsFrame, text='DELETE', font='HELVETICA 30 bold', width=20, command=lambda: terminal(2)).pack(fill=tk.X, pady=10)
         self.searchButton = tk.Button(self.methodsFrame, text='SEARCH', font='HELVETICA 30 bold', width=20, command=lambda: terminal(3)).pack(fill=tk.X, pady=10)
-        self.splitButton = tk.Button(self.methodsFrame, text='SPLIT', font='HELVETICA 30 bold', width=20).pack(fill=tk.X, pady=10)
+        self.splitButton = tk.Button(self.methodsFrame, text='SPLIT', font='HELVETICA 30 bold', width=20, command=lambda: terminal(4)).pack(fill=tk.X, pady=10)
         self.sortButton = tk.Button(self.methodsFrame, text='SORT', font='HELVETICA 30 bold', width=20).pack(fill=tk.X, pady=10)
         self.filterButton = tk.Button(self.methodsFrame, text='FILTER', font='HELVETICA 30 bold', width=20).pack(fill=tk.X, pady=10)
-        self.newArrayButton = tk.Button(self.master, text='NEW ARRAY', font='HELVETICA 30 bold', width=20, command=lambda: restart()).grid(row=1, column=1)
 
         self.methodsFrame.grid(row=0, column=1)
-        self.master.columnconfigure(1, weight=1)
         self.master.rowconfigure(1, weight=1)
+        self.master.columnconfigure(1, weight=1)
+
+        # Bottom frame containing array's attributes and a new array button.
+        self.bottomFrame = tk.Frame(self.master, bg='gray25')
+        self.newArrayButton = tk.Button(self.bottomFrame, text='NEW ARRAY', font='HELVETICA 30 bold', width=20, command=lambda: restart())
+        self.newArrayButton.pack(side=tk.RIGHT, padx=40)
 
         # Label containing attributes of the array.
         self.msg = 'Number of Dimensions: '+str(self.get_NumDimensions())+'\nType of data: '+str(self.get_DataType())+'\n['+str(self.listBox.size())+'] # of elements.'
-        self.arrayAttributeLabel = tk.Label(self.master, text=self.msg, bg='indianred', font='HELVETICA 18').grid(row=1, column=0)
+        self.arrayAttributeLabel = tk.Label(self.bottomFrame, text=self.msg, bg='gray25', fg='white', font='HELVETICA 18', padx=100)
+        self.arrayAttributeLabel.pack(side=tk.LEFT, padx=40)
+
+        self.bottomFrame.grid(row=1, column=0, columnspan=2, padx=40)
+        self.bottomFrame.columnconfigure(0, weight=1)
+        self.bottomFrame.columnconfigure(1, weight=1)
+
+        self.master.rowconfigure(1, weight=2)
+
+        self.master.grid_rowconfigure(0, weight=2)
 
         # dimensionPrompt_Window attributes.
         self.master.config(bg='indianred')
         self.master.title('Visual Array Hub')
         self.master.geometry('875x525')
         self.master.minsize(875, 525)
+        self.master.resizable(False, False)
         self.master.mainloop()
 
     # Method inserts element at given location in array.
@@ -312,6 +332,7 @@ class VisualArray:
         self.alpha.config(bg='indianred')
         self.alpha.minsize(400, 300)
         self.alpha.bind('<Return>', lambda cmd: add())
+        self.alpha.resizable(False, False)
         self.alpha.mainloop()
 
     # Method removes element at given location in array.
@@ -463,6 +484,18 @@ class VisualArray:
         self.alpha.bind('<Return>', lambda cmd: find())
         self.alpha.resizable(False, False)
         self.alpha.mainloop()
+
+    def split_(self, master):
+        self.master = master
+
+
+
+        self.master.title('Split:')
+        self.master.geometry('400x225')
+        self.master.resizable(False, False)
+        self.master.minsize(400, 225)
+        self.master.config(bg='indianred')
+        self.master.mainloop()
 
     # Getter method.
     def get_NumDimensions(self):
