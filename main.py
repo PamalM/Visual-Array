@@ -38,6 +38,9 @@ class VisualArray:
         self.indexSearchEntry = tk.Entry()
         self.alpha = None
         self.bottomFrame = tk.Frame()
+        self.listBox2 = tk.Listbox()
+        self.listBox3 = tk.Listbox()
+        self.arrayBox = tk.Frame()
 
         # Method checks to ensure that the number of dimensions entered by the user is between (1-3).
         # If valid, direct user to next screen; Else, display a notice window.
@@ -205,74 +208,89 @@ class VisualArray:
             self.__init__(root)
             root.mainloop()
 
+        # Initiate and create the array with user specified attributes.
+        self.array = np.zeros(shape=(self.get_NumDimensions(), int(self.get_Shape())))
+
         self.master = master
 
-        # Frame to listbox containing array elements.
+        # Frame that holds the listbox containing array elements.
         self.arrayFrame = tk.Frame(self.master, bg='indianred')
-        self.label1 = tk.Label(self.arrayFrame, text='Array Contents:', fg='white', bg='black', font='Helvetica 24 bold').pack(fill=tk.X, pady=(10, 30))
+        self.label1 = tk.Label(self.arrayFrame, text='Array Contents:', fg='white', bg='black', font='Helvetica 24 bold')
 
-        # Listbox to hold the contents of the array.
-        self.listBox = tk.Listbox(self.arrayFrame, justify='center', font='TIMES 26 bold', width=20, height=10, selectborderwidth=1, bg='lavenderblush')
+        # Listbox to hold 1st dimensional elements.
+        self.listBox = tk.Listbox(self.arrayFrame, justify='center', font='VERDANA 26 bold', selectborderwidth=1, bg='bisque')
         self.listBox.config(relief='sunken', selectbackground='oldlace')
 
-        for key in self.array:
-            self.listBox.insert(tk.END, key)
+        # Listbox to hold the 3rd dimensional elements.
+        self.listBox2 = tk.Listbox(self.arrayFrame, justify='center', font='VERDANA 26 bold', selectborderwidth=1, bg='azure')
+        self.listBox2.config(relief='sunken', selectbackground='oldlace')
 
-        self.listBox.pack(side=tk.RIGHT)
-        self.listBox.focus()
+        # Listbox to hold the 3rd dimensional elements.
+        self.listBox3 = tk.Listbox(self.arrayFrame, justify='center', font='VERDANA 26 bold', selectborderwidth=1, bg='mistyrose')
+        self.listBox3.config(relief='sunken', selectbackground='oldlace')
 
-        # If the content of the array exceeds 11, then insert a scroll bar left of the listbox.
-        if self.listBox.size() >= 11:
-            # Add scrollbar to listbox.
-            self.scrollbar = tk.Scrollbar(self.arrayFrame, orient="vertical", command=self.listBox.yview)
-            self.listBox.config(yscrollcommand=self.scrollbar.set)
-            self.scrollbar.pack(side=tk.LEFT, fill=tk.Y)
+        # Pack in other listbox widgets depending on dimensions specified by user.
+        if self.get_NumDimensions() == 1:
+            self.label1.grid(row=0, column=0, columnspan=3, sticky='nsew')
+            self.listBox.grid(row=1, column=0, sticky='nsew', columnspan=3)
+        elif self.get_NumDimensions() == 2:
+            self.label1.pack(fill=tk.X)
+            self.listBox.pack(side=tk.LEFT, fill=tk.X, padx=20, expand=1)
+            self.listBox2.pack(side=tk.RIGHT, fill=tk.X, padx=20, expand=1)
+        else:
+            self.label1.grid(row=0, column=0, columnspan=3, sticky='nsew')
+            self.listBox2.grid(row=1, column=1)
+            self.listBox.grid(row=1, column=0)
+            self.listBox3.grid(row=1, column=2)
 
-        self.arrayFrame.grid(row=0, column=0)
-        self.master.columnconfigure(0, weight=1)
-        self.master.rowconfigure(0, weight=1)
+        # Window grid attributes.
+        self.arrayFrame.grid_columnconfigure(0, weight=1)
+        self.arrayFrame.grid_columnconfigure(1, weight=1)
+        self.arrayFrame.grid_columnconfigure(2, weight=1)
+        self.arrayFrame.grid_rowconfigure(0, weight=1)
+
+        self.arrayFrame.pack()
 
         # Frame containing buttons with methods to perform on the given array.
-        self.methodsFrame = tk.Frame(self.master, bg='indianred')
-
+        self.methodsFrame = tk.Frame(self.master, bg='darkslategray')
         label2 = tk.Label(self.methodsFrame, text='Array Methods:', fg='white', bg='black', font='Helvetica 24 bold')
-        label2.pack(fill=tk.X, pady=10)
+        label2.grid(row=0, column=0, columnspan=3, sticky='nsew')
 
         # Array Method Buttons.
-        self.insertButton = tk.Button(self.methodsFrame, text='INSERT', font='HELVETICA 30 bold', width=20, command=lambda: terminal(1)).pack(fill=tk.X, pady=10)
-        self.deleteButton = tk.Button(self.methodsFrame, text='DELETE', font='HELVETICA 30 bold', width=20, command=lambda: terminal(2)).pack(fill=tk.X, pady=10)
-        self.searchButton = tk.Button(self.methodsFrame, text='SEARCH', font='HELVETICA 30 bold', width=20, command=lambda: terminal(3)).pack(fill=tk.X, pady=10)
-        self.splitButton = tk.Button(self.methodsFrame, text='SPLIT', font='HELVETICA 30 bold', width=20, command=lambda: terminal(4)).pack(fill=tk.X, pady=10)
-        self.sortButton = tk.Button(self.methodsFrame, text='SORT', font='HELVETICA 30 bold', width=20).pack(fill=tk.X, pady=10)
-        self.filterButton = tk.Button(self.methodsFrame, text='FILTER', font='HELVETICA 30 bold', width=20).pack(fill=tk.X, pady=10)
+        self.insertButton = tk.Button(self.methodsFrame, text='INSERT', font='HELVETICA 30 bold', width=20, command=lambda: terminal(1)).grid(row=1, column=0, sticky='nsew')
+        self.deleteButton = tk.Button(self.methodsFrame, text='DELETE', font='HELVETICA 30 bold', width=20, command=lambda: terminal(2)).grid(row=2, column=0, sticky='nsew')
+        self.searchButton = tk.Button(self.methodsFrame, text='SEARCH', font='HELVETICA 30 bold', width=20, command=lambda: terminal(3)).grid(row=1, column=1, sticky='nsew')
+        self.splitButton = tk.Button(self.methodsFrame, text='SPLIT', font='HELVETICA 30 bold', width=20, command=lambda: terminal(4)).grid(row=2, column=1, sticky='nsew')
+        self.sortButton = tk.Button(self.methodsFrame, text='SORT', font='HELVETICA 30 bold', width=20).grid(row=1, column=2, sticky='nsew')
+        self.filterButton = tk.Button(self.methodsFrame, text='FILTER', font='HELVETICA 30 bold', width=20).grid(row=2, column=2, sticky='nsew')
 
-        self.methodsFrame.grid(row=0, column=1)
-        self.master.rowconfigure(1, weight=1)
-        self.master.columnconfigure(1, weight=1)
+        self.methodsFrame.grid_columnconfigure(0, weight=1)
+        self.methodsFrame.grid_columnconfigure(1, weight=1)
+        self.methodsFrame.grid_columnconfigure(2, weight=1)
+        self.methodsFrame.grid_rowconfigure(0, weight=1)
+        self.methodsFrame.grid_rowconfigure(1, weight=1)
+        self.methodsFrame.grid_rowconfigure(2, weight=1)
 
         # Bottom frame containing array's attributes and a new array button.
         self.bottomFrame = tk.Frame(self.master, bg='gray25')
         self.newArrayButton = tk.Button(self.bottomFrame, text='NEW ARRAY', font='HELVETICA 30 bold', width=20, command=lambda: restart())
-        self.newArrayButton.pack(side=tk.RIGHT, padx=40)
+        self.newArrayButton.pack(side=tk.RIGHT, padx=60)
 
         # Label containing attributes of the array.
         self.msg = 'Number of Dimensions: '+str(self.get_NumDimensions())+'\nType of data: '+str(self.get_DataType())+'\n['+str(self.listBox.size())+'] # of elements.'
-        self.arrayAttributeLabel = tk.Label(self.bottomFrame, text=self.msg, bg='gray25', fg='white', font='HELVETICA 18', padx=100)
-        self.arrayAttributeLabel.pack(side=tk.LEFT, padx=40)
+        self.arrayAttributeLabel = tk.Label(self.bottomFrame, text=self.msg, bg='gray25', fg='white', font='HELVETICA 18')
+        self.arrayAttributeLabel.pack(side=tk.LEFT, padx=60)
 
-        self.bottomFrame.grid(row=1, column=0, columnspan=2, padx=40)
-        self.bottomFrame.columnconfigure(0, weight=1)
-        self.bottomFrame.columnconfigure(1, weight=1)
+        self.arrayFrame.grid(row=0, column=0, columnspan=2, sticky='nsew', padx=20, pady=(20, 0))
+        self.methodsFrame.grid(row=1, column=0, columnspan=2, sticky='nsew', padx=20, pady=20)
+        self.bottomFrame.grid(row=2, column=0, columnspan=2, sticky='sew', padx=20, pady=(0, 20))
+        self.master.grid_columnconfigure(0, weight=1)
 
-        self.master.rowconfigure(1, weight=2)
-
-        self.master.grid_rowconfigure(0, weight=2)
-
-        # dimensionPrompt_Window attributes.
+        # arrayHub window attributes.
         self.master.config(bg='indianred')
         self.master.title('Visual Array Hub')
         self.master.geometry('875x525')
-        self.master.minsize(875, 525)
+        self.master.minsize(875, 630)
         self.master.resizable(False, False)
         self.master.mainloop()
 
