@@ -226,15 +226,15 @@ class VisualArray:
 
         # Listbox to hold 1st dimensional elements.
         self.listBox = tk.Listbox(self.arrayFrame, justify='center', font='VERDANA 26 bold', selectborderwidth=1, bg='bisque')
-        self.listBox.config(relief='sunken', selectbackground='oldlace')
+        self.listBox.config(relief='sunken', selectbackground='gray25', selectforeground='white')
 
         # Listbox to hold the 3rd dimensional elements.
-        self.listBox2 = tk.Listbox(self.arrayFrame, justify='center', font='VERDANA 26 bold', selectborderwidth=1, bg='azure')
-        self.listBox2.config(relief='sunken', selectbackground='oldlace')
+        self.listBox2 = tk.Listbox(self.arrayFrame, justify='center', font='VERDANA 26 bold', selectborderwidth=1, bg='bisque')
+        self.listBox2.config(relief='sunken', selectbackground='gray25', selectforeground='white')
 
         # Listbox to hold the 3rd dimensional elements.
-        self.listBox3 = tk.Listbox(self.arrayFrame, justify='center', font='VERDANA 26 bold', selectborderwidth=1, bg='mistyrose')
-        self.listBox3.config(relief='sunken', selectbackground='oldlace')
+        self.listBox3 = tk.Listbox(self.arrayFrame, justify='center', font='VERDANA 26 bold', selectborderwidth=1, bg='bisque')
+        self.listBox3.config(relief='sunken', selectbackground='gray25', selectforeground='white')
 
         # Pack in other listbox widgets depending on dimensions specified by user.
         if self.get_NumDimensions() == 1:
@@ -322,22 +322,64 @@ class VisualArray:
 
         # Update label in arrayHub that shows the selected list element for the user.
         def updateSelection(tag):
-            if tag == 1:
+            # Bunch of if/else statements to ensure that the address for the selectionLabel for the selected element is coming from the right listbox/dimension.
+            if tag == 3 and self.listBox['bg'] == 'azure':
                 self.selection = self.listBox.curselection()
                 self.msg2 = 'Selected: ' + str(list(self.selection))
-            elif tag == 2:
-                # Need to figureo ut a method to get listbox1 focus when dimension ==2
+            elif tag == 3 and self.listBox2['bg'] == 'azure':
                 self.selection = self.listBox2.curselection()
-                self.msg2 = "Selected: [1]" + str(list(self.selection))
-            elif tag == 3:
+                self.msg2 = 'Selected: [1]' + str(list(self.selection))
+            elif tag == 3 and self.listBox3['bg'] == 'azure':
                 self.selection = self.listBox3.curselection()
-                self.msg2 = "Selected: [2]" + str(list(self.selection))
+                self.msg2 = 'Selected: [2]' + str(list(self.selection))
+            elif tag == 2 and self.listBox['bg'] == 'azure':
+                self.selection = self.listBox.curselection()
+                self.msg2 = 'Selected: ' + str(list(self.selection))
+            elif tag == 2 and self.listBox2['bg'] == 'azure':
+                self.selection = self.listBox2.curselection()
+                self.msg2 = 'Selected: [1]' + str(list(self.selection))
+            elif tag == 2 and self.listBox3['bg'] == 'azure':
+                self.selection = self.listBox3.curselection()
+                self.msg2 = 'Selected: [2]' + str(list(self.selection))
+            elif tag == 1 and self.listBox['bg'] == 'azure':
+                self.selection = self.listBox.curselection()
+                self.msg2 = 'Selected: ' + str(list(self.selection))
+            elif tag == 1 and self.listBox2['bg'] == 'azure':
+                self.selection = self.listBox2.curselection()
+                self.msg2 = 'Selected: [1]' + str(list(self.selection))
+            elif tag == 1 and self.listBox3['bg'] == 'azure':
+                self.selection = self.listBox3.curselection()
+                self.msg2 = 'Selected: [2]' + str(list(self.selection))
 
+            # Update the label and the window.
             self.selectionLabel.config(text=self.msg2)
             self.master.after(1, self.selectionLabel.update())
 
+        # Method makes a call to updateSelection() to update the selectionLabel with the selected element from listbox 1,2 or 3.
+        def tagger(tag):
+            # The focused listbox will temp. have it's background changed to allow proper dimensional addressing of the array.
+            # The selected listbox (focused listbox) will have the 'azure' background color. This will be changed back once the label has been updated.
+            if tag == 1:
+                self.listBox.config(bg='azure')
+                self.master.update()
+                self.listBox.focus_set()
+                updateSelection(1)
+                self.listBox.config(bg='bisque')
+            elif tag == 2:
+                self.listBox2.config(bg='azure')
+                self.master.update()
+                self.listBox2.focus_set()
+                updateSelection(2)
+                self.listBox2.config(bg='bisque')
+            elif tag == 3:
+                self.listBox3.config(bg='azure')
+                self.master.update()
+                self.listBox3.focus_set()
+                updateSelection(3)
+                self.listBox3.config(bg='bisque')
+
+        # Pre-select the first item in the first dimension from listbox.
         self.listBox.select_set(0)
-        updateSelection(self.get_NumDimensions())
 
         # arrayHub window attributes.
         self.master.config(bg='indianred')
@@ -345,9 +387,9 @@ class VisualArray:
         self.master.geometry('875x525')
         self.master.minsize(875, 660)
         self.master.resizable(False, False)
-        self.listBox.bind('<<ListboxSelect>>', lambda cmd: updateSelection(self.get_NumDimensions()))
-        self.listBox2.bind('<<ListboxSelect>>', lambda cmd: updateSelection(self.get_NumDimensions()))
-        self.listBox3.bind('<<ListboxSelect>>', lambda cmd: updateSelection(self.get_NumDimensions()))
+        self.listBox.bind('<<ListboxSelect>>', lambda cmd: tagger(1))
+        self.listBox2.bind('<<ListboxSelect>>', lambda cmd: tagger(2))
+        self.listBox3.bind('<<ListboxSelect>>', lambda cmd: tagger(3))
         self.master.mainloop()
 
     # Method inserts element at given location in array.
