@@ -41,6 +41,9 @@ class VisualArray:
         self.listBox2 = tk.Listbox()
         self.listBox3 = tk.Listbox()
         self.arrayBox = tk.Frame()
+        self.selectionLabel = tk.Label()
+        self.msg2 = None
+        self.selection = None
 
         # Method checks to ensure that the number of dimensions entered by the user is between (1-3).
         # If valid, direct user to next screen; Else, display a notice window.
@@ -157,6 +160,13 @@ class VisualArray:
         def transfer():
             self.master.destroy()
             self.master.quit()
+
+            # Initiate and create the array with user specified attributes.
+            if self.get_NumDimensions() == 1:
+                self.array = np.zeros(shape=int(self.get_Shape()), dtype=int)
+            else:
+                self.array = np.zeros(shape=[int(self.get_NumDimensions()), int(self.get_Shape())], dtype=int)
+
             root = tk.Tk()
             self.arrayHub(root)
             root.mainloop()
@@ -208,9 +218,6 @@ class VisualArray:
             self.__init__(root)
             root.mainloop()
 
-        # Initiate and create the array with user specified attributes.
-        self.array = np.zeros(shape=(self.get_NumDimensions(), int(self.get_Shape())))
-
         self.master = master
 
         # Frame that holds the listbox containing array elements.
@@ -232,16 +239,35 @@ class VisualArray:
         # Pack in other listbox widgets depending on dimensions specified by user.
         if self.get_NumDimensions() == 1:
             self.label1.grid(row=0, column=0, columnspan=3, sticky='nsew')
+
+            # Fill the first dimensional listBox with content from self.array
+            for element in np.nditer(self.array):
+                self.listBox.insert(tk.END, element)
+
             self.listBox.grid(row=1, column=0, sticky='nsew', columnspan=3)
+
         elif self.get_NumDimensions() == 2:
             self.label1.pack(fill=tk.X)
             self.listBox.pack(side=tk.LEFT, fill=tk.X, padx=20, expand=1)
             self.listBox2.pack(side=tk.RIGHT, fill=tk.X, padx=20, expand=1)
+
+            for element in self.array[0]:
+                self.listBox.insert(tk.END, element)
+            for element in self.array[1]:
+                self.listBox2.insert(tk.END, element)
+
         else:
             self.label1.grid(row=0, column=0, columnspan=3, sticky='nsew')
             self.listBox2.grid(row=1, column=1)
             self.listBox.grid(row=1, column=0)
             self.listBox3.grid(row=1, column=2)
+
+            for element in self.array[0]:
+                self.listBox.insert(tk.END, element)
+            for element in self.array[1]:
+                self.listBox2.insert(tk.END, element)
+            for element in self.array[2]:
+                self.listBox3.insert(tk.END, element)
 
         # Window grid attributes.
         self.arrayFrame.grid_columnconfigure(0, weight=1)
@@ -250,6 +276,9 @@ class VisualArray:
         self.arrayFrame.grid_rowconfigure(0, weight=1)
 
         self.arrayFrame.pack()
+
+        self.msg2 = "You selected: array[" + str(list(self.array.flatten()).index(int(self.listBox.get('active')))) + "]"
+        self.selectionLabel = tk.Label(self.master, text=self.msg2, font='HELVETICA 14 bold', bg='lightyellow', fg='black')
 
         # Frame containing buttons with methods to perform on the given array.
         self.methodsFrame = tk.Frame(self.master, bg='darkslategray')
@@ -282,16 +311,43 @@ class VisualArray:
         self.arrayAttributeLabel.pack(side=tk.LEFT, padx=60)
 
         self.arrayFrame.grid(row=0, column=0, columnspan=2, sticky='nsew', padx=20, pady=(20, 0))
-        self.methodsFrame.grid(row=1, column=0, columnspan=2, sticky='nsew', padx=20, pady=20)
-        self.bottomFrame.grid(row=2, column=0, columnspan=2, sticky='sew', padx=20, pady=(0, 20))
+        self.selectionLabel.grid(row=1, column=0, columnspan=2, sticky='nsew', padx=20, pady=20)
+        self.methodsFrame.grid(row=2, column=0, columnspan=2, sticky='nsew', padx=20)
+        self.bottomFrame.grid(row=3, column=0, columnspan=2, sticky='sew', padx=20, pady=20)
         self.master.grid_columnconfigure(0, weight=1)
+        self.master.rowconfigure(0, weight=1)
+        self.master.rowconfigure(1, weight=1)
+        self.master.rowconfigure(2, weight=1)
+        self.master.rowconfigure(3, weight=1)
+
+        # Update label in arrayHub that shows the selected list element for the user.
+        def updateSelection(tag):
+            if tag == 1:
+                self.selection = self.listBox.curselection()
+                self.msg2 = 'Selected: ' + str(list(self.selection))
+            elif tag == 2:
+                # Need to figureo ut a method to get listbox1 focus when dimension ==2
+                self.selection = self.listBox2.curselection()
+                self.msg2 = "Selected: [1]" + str(list(self.selection))
+            elif tag == 3:
+                self.selection = self.listBox3.curselection()
+                self.msg2 = "Selected: [2]" + str(list(self.selection))
+
+            self.selectionLabel.config(text=self.msg2)
+            self.master.after(1, self.selectionLabel.update())
+
+        self.listBox.select_set(0)
+        updateSelection(self.get_NumDimensions())
 
         # arrayHub window attributes.
         self.master.config(bg='indianred')
         self.master.title('Visual Array Hub')
         self.master.geometry('875x525')
-        self.master.minsize(875, 630)
+        self.master.minsize(875, 660)
         self.master.resizable(False, False)
+        self.listBox.bind('<<ListboxSelect>>', lambda cmd: updateSelection(self.get_NumDimensions()))
+        self.listBox2.bind('<<ListboxSelect>>', lambda cmd: updateSelection(self.get_NumDimensions()))
+        self.listBox3.bind('<<ListboxSelect>>', lambda cmd: updateSelection(self.get_NumDimensions()))
         self.master.mainloop()
 
     # Method inserts element at given location in array.
@@ -299,8 +355,9 @@ class VisualArray:
 
         def add():
             try:
-                self.array.insert(int(int(self.indexEntry.get())), self.elementEntry.get())
+                np.insert(self.array, int(self.indexEntry.get()), int(self.elementEntry.get()))
                 print('Inserted [' + str(self.elementEntry.get()) + '] @ Index ' + str(self.indexEntry.get()))
+                print(self.array)
                 self.master.destroy()
                 self.master.quit()
                 root = tk.Tk()
@@ -338,9 +395,9 @@ class VisualArray:
         self.elementEntry = tk.Entry(self.alpha, font='HELVETICA 24 bold', justify='center', textvariable=self.element)
         self.elementEntry.pack(fill=tk.X, padx=20)
         self.elementEntry.focus()
-        self.label2 = tk.Label(self.alpha, text='@ Index: ', bg='gray28', fg='white', font='HELVETICA 20 bold', textvariable=self.index)
+        self.label2 = tk.Label(self.alpha, text='@ Index: ', bg='gray28', fg='white', font='HELVETICA 20 bold', )
         self.label2.pack(fill=tk.X, padx=20, pady=20)
-        self.indexEntry = tk.Entry(self.alpha, font='HELVETICA 24 bold', justify='center')
+        self.indexEntry = tk.Entry(self.alpha, font='HELVETICA 24 bold', justify='center', textvariable=self.index)
         self.indexEntry.pack(fill=tk.X, padx=20)
         self.insertButton = tk.Button(self.alpha, text='INSERT', font='HELVETICA 24 bold', command=lambda: add())
         self.insertButton.pack(fill=tk.X, padx=20, pady=20)
