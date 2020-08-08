@@ -100,7 +100,6 @@ class VisualArray:
         # Method transfers user to next GUI.
         def transfer():
             self.set_NumElements(self._shapeScale.get())
-            print('numElements= ', self.get_NumElements())
             self.master.destroy()
             self.master.quit()
 
@@ -204,151 +203,40 @@ class VisualArray:
                 self.split_(root)
             root.mainloop()
 
-        # Method destroys array hub window and restarts application.
-        def restart():
-            self.master.destroy()
-            self.master.quit()
-            root = tk.Tk()
-            self.__init__(root)
-            root.mainloop()
-
-        self.master = master
-
-        # Frame that holds the listbox containing array elements.
-        self.arrayFrame = tk.Frame(self.master, bg='indianred')
-        self.label1 = tk.Label(self.arrayFrame, text='Array Contents:', fg='white', bg='black', font='Helvetica 24 bold')
-
-        # Listbox to hold 1st dimensional elements.
-        self._listBox = tk.Listbox(self.arrayFrame, justify='center', font='VERDANA 26 bold', selectborderwidth=1, bg='bisque')
-        self._listBox.config(relief='sunken', selectbackground='gray25', selectforeground='white')
-
-        # Listbox to hold the 3rd dimensional elements.
-        self._listBox2 = tk.Listbox(self.arrayFrame, justify='center', font='VERDANA 26 bold', selectborderwidth=1, bg='bisque')
-        self._listBox2.config(relief='sunken', selectbackground='gray25', selectforeground='white')
-
-        # Listbox to hold the 3rd dimensional elements.
-        self._listBox3 = tk.Listbox(self.arrayFrame, justify='center', font='VERDANA 26 bold', selectborderwidth=1, bg='bisque')
-        self._listBox3.config(relief='sunken', selectbackground='gray25', selectforeground='white')
-
-        # Pack in other listbox widgets depending on dimensions specified by user.
-        if self.get_NumDimensions() == 1:
-            self.label1.grid(row=0, column=0, columnspan=3, sticky='nsew')
-
-            # Fill the first dimensional listBox with content from self.array
-            for element in np.nditer(self.array):
-                self._listBox.insert(tk.END, element)
-
-            self._listBox.grid(row=1, column=0, sticky='nsew', columnspan=3)
-
-        elif self.get_NumDimensions() == 2:
-            self.label1.pack(fill=tk.X)
-            self._listBox.pack(side=tk.LEFT, fill=tk.X, padx=20, expand=1)
-            self._listBox2.pack(side=tk.RIGHT, fill=tk.X, padx=20, expand=1)
-
-            for element in self.array[0]:
-                self._listBox.insert(tk.END, element)
-
-            for element in self.array[1]:
-                self._listBox2.insert(tk.END, element)
-
-        else:
-            self.label1.grid(row=0, column=0, columnspan=3, sticky='nsew')
-            self._listBox.grid(row=1, column=0)
-            self._listBox2.grid(row=1, column=1)
-            self._listBox3.grid(row=1, column=2)
-
-            for element in self.array[0]:
-                self._listBox.insert(tk.END, element)
-            for element in self.array[1]:
-                self._listBox2.insert(tk.END, element)
-            for element in self.array[2]:
-                self._listBox3.insert(tk.END, element)
-
-        # Window grid attributes.
-        self.arrayFrame.grid_columnconfigure(0, weight=1)
-        self.arrayFrame.grid_columnconfigure(1, weight=1)
-        self.arrayFrame.grid_columnconfigure(2, weight=1)
-        self.arrayFrame.grid_rowconfigure(0, weight=1)
-
-        self.arrayFrame.pack()
-
-        self.msg2 = "You selected: array[" + str(list(self.array.flatten()).index(int(self._listBox.get('active')))) + "]"
-        self.selectionLabel = tk.Label(self.master, text=self.msg2, font='HELVETICA 14 bold', bg='lightyellow', fg='black')
-
-        # Frame containing buttons with methods to perform on the given array.
-        self.methodsFrame = tk.Frame(self.master, bg='darkslategray')
-        label2 = tk.Label(self.methodsFrame, text='Array Methods:', fg='white', bg='black', font='Helvetica 24 bold')
-        label2.grid(row=0, column=0, columnspan=3, sticky='nsew')
-
-        # Array Method Buttons.
-        self.insertButton = tk.Button(self.methodsFrame, text='INSERT', font='HELVETICA 30 bold', width=20, command=lambda: terminal(1)).grid(row=1, column=0, sticky='nsew')
-        self.deleteButton = tk.Button(self.methodsFrame, text='DELETE', font='HELVETICA 30 bold', width=20, command=lambda: terminal(2)).grid(row=2, column=0, sticky='nsew')
-        self.searchButton = tk.Button(self.methodsFrame, text='SEARCH', font='HELVETICA 30 bold', width=20, command=lambda: terminal(3)).grid(row=1, column=1, sticky='nsew')
-        self.splitButton = tk.Button(self.methodsFrame, text='SPLIT', font='HELVETICA 30 bold', width=20, command=lambda: terminal(4)).grid(row=2, column=1, sticky='nsew')
-        self.sortButton = tk.Button(self.methodsFrame, text='SORT', font='HELVETICA 30 bold', width=20).grid(row=1, column=2, sticky='nsew')
-        self.filterButton = tk.Button(self.methodsFrame, text='FILTER', font='HELVETICA 30 bold', width=20).grid(row=2, column=2, sticky='nsew')
-
-        self.methodsFrame.grid_columnconfigure(0, weight=1)
-        self.methodsFrame.grid_columnconfigure(1, weight=1)
-        self.methodsFrame.grid_columnconfigure(2, weight=1)
-        self.methodsFrame.grid_rowconfigure(0, weight=1)
-        self.methodsFrame.grid_rowconfigure(1, weight=1)
-        self.methodsFrame.grid_rowconfigure(2, weight=1)
-
-        # Bottom frame containing array's attributes and a new array button.
-        self.bottomFrame = tk.Frame(self.master, bg='gray25')
-        self.newArrayButton = tk.Button(self.bottomFrame, text='NEW ARRAY', font='HELVETICA 30 bold', width=20, command=lambda: restart())
-        self.newArrayButton.pack(side=tk.RIGHT, padx=60)
-
-        # Label containing attributes of the array.
-        self.msg = 'Number of Dimensions: '+str(self.get_NumDimensions())+'\nType of data: '+str(self.get_DataType())+'\n['+str(self._listBox.size())+'] # of elements.'
-        self.arrayAttributeLabel = tk.Label(self.bottomFrame, text=self.msg, bg='gray25', fg='white', font='HELVETICA 18')
-        self.arrayAttributeLabel.pack(side=tk.LEFT, padx=60)
-
-        self.arrayFrame.grid(row=0, column=0, columnspan=2, sticky='nsew', padx=20, pady=(20, 0))
-        self.selectionLabel.grid(row=1, column=0, columnspan=2, sticky='nsew', padx=20, pady=20)
-        self.methodsFrame.grid(row=2, column=0, columnspan=2, sticky='nsew', padx=20)
-        self.bottomFrame.grid(row=3, column=0, columnspan=2, sticky='sew', padx=20, pady=20)
-        self.master.grid_columnconfigure(0, weight=1)
-        self.master.rowconfigure(0, weight=1)
-        self.master.rowconfigure(1, weight=1)
-        self.master.rowconfigure(2, weight=1)
-        self.master.rowconfigure(3, weight=1)
-
         # Update label in arrayHub that shows the selected list element for the user.
         def updateSelection(tag):
             # Bunch of if/else statements to ensure that the address for the selectionLabel for the selected element is coming from the right listbox/dimension.
             if tag == 3 and self._listBox['bg'] == 'azure':
                 self.selection = self._listBox.curselection()
-                self.msg2 = 'Selected: [0]' + str(list(self.selection))
+                self.msg2 = 'Selected: array[0]' + str(list(self.selection))
             elif tag == 3 and self._listBox2['bg'] == 'azure':
                 self.selection = self._listBox2.curselection()
-                self.msg2 = 'Selected: [1]' + str(list(self.selection))
+                self.msg2 = 'Selected: array[1]' + str(list(self.selection))
             elif tag == 3 and self._listBox3['bg'] == 'azure':
                 self.selection = self._listBox3.curselection()
-                self.msg2 = 'Selected: [2]' + str(list(self.selection))
+                self.msg2 = 'Selected: array[2]' + str(list(self.selection))
             elif tag == 2 and self._listBox['bg'] == 'azure':
                 self.selection = self._listBox.curselection()
-                self.msg2 = 'Selected: [0]' + str(list(self.selection))
+                self.msg2 = 'Selected: array[0]' + str(list(self.selection))
             elif tag == 2 and self._listBox2['bg'] == 'azure':
                 self.selection = self._listBox2.curselection()
-                self.msg2 = 'Selected: [1]' + str(list(self.selection))
+                self.msg2 = 'Selected: array[1]' + str(list(self.selection))
             elif tag == 2 and self._listBox3['bg'] == 'azure':
                 self.selection = self._listBox3.curselection()
-                self.msg2 = 'Selected: [2]' + str(list(self.selection))
+                self.msg2 = 'Selected: array[2]' + str(list(self.selection))
             elif tag == 1 and self._listBox['bg'] == 'azure':
                 if self.get_NumDimensions() != 1:
                     self.selection = self._listBox.curselection()
-                    self.msg2 = 'Selected: [0]' + str(list(self.selection))
+                    self.msg2 = 'Selected: array[0]' + str(list(self.selection))
                 else:
                     self.selection = self._listBox.curselection()
-                    self.msg2 = 'Selected: ' + str(list(self.selection))
+                    self.msg2 = 'Selected: array' + str(list(self.selection))
             elif tag == 1 and self._listBox2['bg'] == 'azure':
                 self.selection = self._listBox2.curselection()
-                self.msg2 = 'Selected: [1]' + str(list(self.selection))
+                self.msg2 = 'Selected: array[1]' + str(list(self.selection))
             elif tag == 1 and self._listBox3['bg'] == 'azure':
                 self.selection = self._listBox3.curselection()
-                self.msg2 = 'Selected: [2]' + str(list(self.selection))
+                self.msg2 = 'Selected: array[2]' + str(list(self.selection))
 
             # Update the label and the window.
             self.selectionLabel.config(text=self.msg2)
@@ -360,32 +248,151 @@ class VisualArray:
             # The selected listbox (focused listbox) will have the 'azure' background color. This will be changed back once the label has been updated.
             if tag == 1:
                 self._listBox.config(bg='azure')
+                self._listBox.config(relief='raised')
                 self.master.update()
                 self._listBox.focus_set()
                 updateSelection(1)
                 self._listBox.config(bg='bisque')
+                self._listBox.config(relief='groove')
             elif tag == 2:
                 self._listBox2.config(bg='azure')
+                self._listBox.config(relief='raised')
                 self.master.update()
                 self._listBox2.focus_set()
                 updateSelection(2)
                 self._listBox2.config(bg='bisque')
+                self._listBox.config(relief='groove')
             elif tag == 3:
                 self._listBox3.config(bg='azure')
+                self._listBox.config(relief='raised')
                 self.master.update()
                 self._listBox3.focus_set()
                 updateSelection(3)
                 self._listBox3.config(bg='bisque')
+                self._listBox.config(relief='groove')
+
+        # Method destroys array hub window and restarts application.
+        def restart():
+            self.master.destroy()
+            self.master.quit()
+            root = tk.Tk()
+            self.__init__(root)
+            root.mainloop()
+
+        self.master = master
+        self._frame = tk.Frame(self.master, bg='indianred3')
+
+        # Frame holds the listBoxes for each dimension. (Displays array's contents)
+        self._arrayFrame = tk.Frame(self._frame, bg='indianred')
+        self._label1 = tk.Label(self._arrayFrame, text='Array Contents:', fg='white', bg='black', font='Helvetica 24 bold')
+        self._arrayFrame.grid_columnconfigure(0, weight=1)
+        self._arrayFrame.grid_columnconfigure(1, weight=1)
+        self._arrayFrame.grid_columnconfigure(2, weight=1)
+        self._arrayFrame.grid_rowconfigure(0, weight=1)
+        self._arrayFrame.grid_rowconfigure(1, weight=1)
+
+        # Listbox to hold 1st dimensional elements.
+        self._listBox = tk.Listbox(self._arrayFrame, justify='center', font='VERDANA 26 bold', selectborderwidth=1, bg='bisque')
+        self._listBox.config(relief='groove', selectbackground='gray25', selectforeground='white')
+
+        # Listbox to hold the 3rd dimensional elements.
+        self._listBox2 = tk.Listbox(self._arrayFrame, justify='center', font='VERDANA 26 bold', selectborderwidth=1, bg='bisque')
+        self._listBox2.config(relief='groove', selectbackground='gray25', selectforeground='white')
+
+        # Listbox to hold the 3rd dimensional elements.
+        self._listBox3 = tk.Listbox(self._arrayFrame, justify='center', font='VERDANA 26 bold', selectborderwidth=1, bg='bisque')
+        self._listBox3.config(relief='groove', selectbackground='gray25', selectforeground='white')
+
+        # Pack in other listbox widgets depending on dimensions specified by user.
+        if self.get_NumDimensions() == 1:
+            # Fill the first dimensional listBox with content from self.array[0].
+            for element in np.nditer(self.array):
+                self._listBox.insert(tk.END, element)
+
+            self._label1.pack(fill=tk.X, expand=True)
+            self._listBox.pack(fill=tk.BOTH, expand=True)
+
+            self.msg2 = "You selected: array[" + str(list(self.array.flatten()).index(int(self._listBox.get('active')))) + "]"
+            self.selectionLabel = tk.Label(self._frame, text=self.msg2, font='HELVETICA 14 bold', bg='lightyellow', fg='black')
+
+        elif self.get_NumDimensions() == 2:
+            for element in self.array[0]:
+                self._listBox.insert(tk.END, element)
+            for element in self.array[1]:
+                self._listBox2.insert(tk.END, element)
+
+            self._label1.pack(fill=tk.X, expand=True)
+            self._listBox.pack(side=tk.LEFT, expand=True, fill=tk.BOTH)
+            self._listBox2.pack(side=tk.RIGHT, expand=True, fill=tk.BOTH)
+
+            self.msg2 = "You selected: array[0][" + str(list(self.array.flatten()).index(int(self._listBox.get('active')))) + "]"
+            self.selectionLabel = tk.Label(self._frame, text=self.msg2, font='HELVETICA 14 bold', bg='lightyellow', fg='black')
+
+        else:
+            for element in self.array[0]:
+                self._listBox.insert(tk.END, element)
+            for element in self.array[1]:
+                self._listBox2.insert(tk.END, element)
+            for element in self.array[2]:
+                self._listBox3.insert(tk.END, element)
+
+            self._label1.grid(row=0, column=0, columnspan=3, sticky='ew')
+            self._listBox.grid(row=1, column=0, sticky='nsew', columnspan=1)
+            self._listBox2.grid(row=1, column=1, sticky='nsew', columnspan=1)
+            self._listBox3.grid(row=1, column=2, sticky='nsew', columnspan=1)
+
+            self.msg2 = "You selected: array[0][" + str(list(self.array.flatten()).index(int(self._listBox.get('active')))) + "]"
+            self.selectionLabel = tk.Label(self._frame, text=self.msg2, font='HELVETICA 14 bold', bg='lightyellow', fg='black')
+
+        self._arrayFrame.pack(fill=tk.BOTH, padx=20, expand=True, pady=5)
+        self.selectionLabel.pack(fill=tk.BOTH, padx=20, pady=5, expand=True)
+
+        # Frame containing buttons with methods to perform on the given array.
+        self._methodsFrame = tk.Frame(self._frame, bg='indianred3')
+
+        self._label2 = tk.Label(self._methodsFrame, text='Array Methods:', fg='white', bg='black', font='Helvetica 24 bold')
+        self._label2.grid(row=0, column=0, columnspan=3, sticky='ew')
+
+        self._methodsFrame.grid_columnconfigure(0, weight=1)
+        self._methodsFrame.grid_columnconfigure(1, weight=1)
+        self._methodsFrame.grid_columnconfigure(2, weight=1)
+        self._methodsFrame.grid_rowconfigure(0, weight=1)
+        self._methodsFrame.grid_rowconfigure(1, weight=1)
+        self._methodsFrame.grid_rowconfigure(2, weight=1)
+
+        # Array Method Buttons.
+        self.insertButton = tk.Button(self._methodsFrame, text='INSERT', font='HELVETICA 30 bold', width=20, command=lambda: terminal(1)).grid(row=1, column=0, sticky='nsew')
+        self.deleteButton = tk.Button(self._methodsFrame, text='DELETE', font='HELVETICA 30 bold', width=20, command=lambda: terminal(2)).grid(row=2, column=0, sticky='nsew')
+        self.searchButton = tk.Button(self._methodsFrame, text='SEARCH', font='HELVETICA 30 bold', width=20, command=lambda: terminal(3)).grid(row=1, column=1, sticky='nsew')
+        self.splitButton = tk.Button(self._methodsFrame, text='SPLIT', font='HELVETICA 30 bold', width=20, command=lambda: terminal(4)).grid(row=2, column=1, sticky='nsew')
+        self.sortButton = tk.Button(self._methodsFrame, text='SORT', font='HELVETICA 30 bold', width=20).grid(row=1, column=2, sticky='nsew')
+        self.filterButton = tk.Button(self._methodsFrame, text='FILTER', font='HELVETICA 30 bold', width=20).grid(row=2, column=2, sticky='nsew')
+
+        self._methodsFrame.pack(fill=tk.BOTH, padx=20, expand=True, pady=5)
 
         # Pre-select the first item in the first dimension from listbox.
         self._listBox.select_set(0)
 
-        # arrayHub window attributes.
-        self.master.config(bg='indianred')
+        # Bottom frame containing array's attributes and a new array button.
+        self._bottomFrame = tk.Frame(self._frame, bg='gray25')
+        self.newArrayButton = tk.Button(self._bottomFrame, text='NEW ARRAY', font='HELVETICA 30 bold', width=20, command=lambda: restart())
+        self.newArrayButton.pack(side=tk.RIGHT, padx=60)
+
+        # Label containing attributes of the array.
+        self.msg = 'Number of Dimensions: ' + str(self.get_NumDimensions()) + '\nType of data: ' + str(self.get_DataType()) + '\n[' + str(self._listBox.size()) + '] # of elements.'
+        self.arrayAttributeLabel = tk.Label(self._bottomFrame, text=self.msg, bg='gray25', fg='white', font='HELVETICA 18')
+        self.arrayAttributeLabel.pack(side=tk.LEFT, padx=60)
+
+        self._bottomFrame.pack(fill=tk.BOTH, padx=20, expand=True, pady=5)
+
+        self._frame.pack(fill=tk.BOTH, padx=14, pady=14, expand=True)
+
+        # Window attributes.
+        self.master.config(bg='gray25')
         self.master.title('Visual Array Hub')
         self.master.geometry('875x525')
         self.master.minsize(875, 660)
-        self.master.resizable(False, False)
+        # These bindings to the window ensure that the window is being updated immediately, and displaying the correct selection from listBoxes.
         self._listBox.bind('<<ListboxSelect>>', lambda cmd: tagger(1))
         self._listBox2.bind('<<ListboxSelect>>', lambda cmd: tagger(2))
         self._listBox3.bind('<<ListboxSelect>>', lambda cmd: tagger(3))
@@ -559,15 +566,15 @@ class VisualArray:
                 self.label13 = tk.Label(self.displaySearch_Window, text='Index: ' + str(self.searchedIndex), bg='gray20', fg='white', font='HELVETICA 54 bold')
                 self.label13.pack(fill=tk.X, padx=10)
 
-                self.bottomFrame = tk.Frame(self.displaySearch_Window, bg='indianred')
+                self._bottomFrame = tk.Frame(self.displaySearch_Window, bg='indianred')
 
-                self.searchAgainButton = tk.Button(self.bottomFrame, text='SEARCH', font='HELVETICA 24 bold', width=10, command=lambda: searchBind())
+                self.searchAgainButton = tk.Button(self._bottomFrame, text='SEARCH', font='HELVETICA 24 bold', width=10, command=lambda: searchBind())
                 self.searchAgainButton.pack(side=tk.LEFT, fill=tk.X)
 
-                self.doneButton = tk.Button(self.bottomFrame, text='DONE', font='HELVETICA 24 bold', width=10, command=lambda: self.displaySearch_Window.destroy())
+                self.doneButton = tk.Button(self._bottomFrame, text='DONE', font='HELVETICA 24 bold', width=10, command=lambda: self.displaySearch_Window.destroy())
                 self.doneButton.pack(side=tk.RIGHT, fill=tk.X, padx=1)
 
-                self.bottomFrame.pack(fill=tk.BOTH, padx=10, pady=10)
+                self._bottomFrame.pack(fill=tk.BOTH, padx=10, pady=10)
 
                 self.displaySearch_Window.title('Search Complete')
                 self.displaySearch_Window.minsize(400, 225)
