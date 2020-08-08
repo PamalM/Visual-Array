@@ -272,7 +272,7 @@ class VisualArray:
 
         self.arrayFrame.pack()
 
-        self.msg2 = "You selected: array[" + str(list(self.array.flatten()).index(self._listBox.curselection())) + "]"
+        self.msg2 = "You selected: array[" + str(list(self.array.flatten()).index(int(self._listBox.get('active')))) + "]"
         self.selectionLabel = tk.Label(self.master, text=self.msg2, font='HELVETICA 14 bold', bg='lightyellow', fg='black')
 
         # Frame containing buttons with methods to perform on the given array.
