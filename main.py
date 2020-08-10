@@ -41,14 +41,23 @@ class VisualArray:
             # Otherwise, display notice window to user.
             except ValueError:
                 self._noticeWindow = tk.Tk()
-                self._label = tk.Label(self._noticeWindow, text='Invalid Dimension Selected!', font='HELVETICA 26 bold', bg='gray20', fg='white').pack(fill=tk.X, pady=20, padx=20)
-                self._label2 = tk.Label(self._noticeWindow, text='Please select a dimension between 1 and 3.', font='HELVETICA 18', bg='salmon', fg='white').pack()
-                self._label3 = tk.Label(self._noticeWindow, text='You have entered: ' + self._dimEntry.get(), bg='gray20', fg='white', font='HELVETICA 14 italic').pack(pady=20)
-                self._closeButton = tk.Button(self._noticeWindow, text='CLOSE', font='HELVETICA 24 bold', command=lambda: self._noticeWindow.destroy())
-                self._closeButton.pack(fill=tk.X, padx=10, pady=10)
+                self._frame = tk.Frame(self._noticeWindow, relief='solid', borderwidth=4, highlightbackground='white', highlightthickness=4)
+                self._frame.config(highlightcolor='gray25', bg='indianred3')
+
+                self._label = tk.Label(self._frame, text='Invalid Dimension Selected!', font='HELVETICA 22 bold', bg='gray20', fg='white').pack(fill=tk.BOTH, pady=10, padx=20)
+                self._label2 = tk.Label(self._frame, text='Please select a dimension \nbetween 1 and 3.', font='HELVETICA 18', bg='indianred3', fg='white').pack(pady=10, padx=20)
+                self._label3 = tk.Label(self._frame, text='You have entered: ' + self._dimEntry.get(), bg='gray20', fg='white', font='HELVETICA 14 italic').pack(pady=10, padx=20)
+
+                # Button to close notice Window.
+                self._buttonFrame = tk.Frame(self._noticeWindow, relief='solid', borderwidth=4, highlightbackground='gray25', highlightthickness=4, highlightcolor='white')
+                self._closeButton = tk.Button(self._buttonFrame, text='CLOSE', font='HELVETICA 24 bold', command=lambda: self._noticeWindow.destroy())
+                self._closeButton.pack(fill=tk.BOTH, expand=True)
+
+                self._frame.pack(expand=True, fill=tk.BOTH, padx=14, pady=4)
+                self._buttonFrame.pack(fill=tk.BOTH, padx=10, pady=(0, 4), expand=True)
 
                 # Notice window attributes.
-                self._noticeWindow.configure(bg='salmon')
+                self._noticeWindow.configure(bg='gray25')
                 self._noticeWindow.geometry('400x250')
                 self._noticeWindow.resizable(False, False)
                 self._noticeWindow.bind('<Return>', lambda cmd: self._noticeWindow.destroy())
@@ -59,32 +68,33 @@ class VisualArray:
         self.master = master
 
         # Frame holding contents of the window.
-        self._frame = tk.Frame(self.master, bg='indianred3')
+        self._frame = tk.Frame(self.master, bg='indianred3', relief='solid', borderwidth=4, highlightbackground='white', highlightthickness=4, highlightcolor='gray25')
         self._frame.grid_columnconfigure(0, weight=1)
         self._frame.grid_rowconfigure(0, weight=1)
         self._frame.grid_rowconfigure(1, weight=1)
         self._frame.grid_rowconfigure(2, weight=1)
         self._frame.grid_rowconfigure(3, weight=1)
 
-        self._label1 = tk.Label(self._frame, text='Enter number of dimensions:', font='Helvetica 40 bold', bg='indianred3', fg='white', relief=tk.FLAT)
-        self._label1.grid(row=0, column=0, sticky='nsew', padx=10, pady=5)
+        self._label1 = tk.Label(self._frame, text='Enter number of dimensions:', font='Helvetica 36 bold', bg='indianred3', fg='white', relief=tk.FLAT)
+        self._label1.grid(row=0, column=0, sticky='nsew', padx=10, pady=10)
 
         # Dimension entry to hold the number of dimensions from user.
-        self._dimEntry = tk.Entry(self._frame, font=('Helvetica', 90, 'bold'), justify='center', textvariable=tk.StringVar(), relief=tk.RAISED)
-        self._dimEntry.grid(row=1, column=0, sticky='nsew', padx=20, pady=20)
+        self._dimEntry = tk.Entry(self._frame, font=('Helvetica', 90, 'bold'), justify='center', textvariable=tk.StringVar(), relief='solid', borderwidth=4)
+        self._dimEntry.grid(row=1, column=0, sticky='nsew', padx=20, pady=10)
 
         # Set the focus of the window to the entry bar.
         self._dimEntry.focus()
 
         self._label2 = tk.Label(self._frame, text='(Please select between 1 to 3 dimensions.)', bg='indianred3', fg='lightcyan', font='Helvetica 12 bold', relief=tk.FLAT)
-        self._label2.grid(row=2, column=0, sticky='nsew', padx=20, pady=5)
+        self._label2.grid(row=2, column=0, sticky='nsew', padx=20, pady=10)
 
         # Button to direct user to next GUI.
-        self._nextButton = tk.Button(self._frame, text='NEXT', font='Helvetica 60 bold', relief=tk.RAISED, command=lambda: transfer())
-        self._nextButton.grid(row=3, column=0, sticky='nsew', padx=20, pady=20)
+        self._buttonFrame = tk.Frame(self.master, relief='solid', borderwidth=4, highlightbackground='gray25', highlightthickness=4, highlightcolor='white')
+        self._nextButton = tk.Button(self._buttonFrame, text='NEXT', font='Helvetica 60 bold', command=lambda: transfer())
+        self._nextButton.pack(fill=tk.BOTH)
 
-        # Pack/Draw the frame into the window.
         self._frame.pack(fill=tk.BOTH, padx=14, pady=14, expand=True)
+        self._buttonFrame.pack(fill=tk.BOTH, padx=14, pady=(0, 14))
 
         # Window attributes.
         self.master.title('Visual Array')
@@ -108,22 +118,28 @@ class VisualArray:
             self.prompt_DataType(root)
             root.mainloop()
 
+        # Window and frame object containing widgets.
         self.master = master
-        self._frame = tk.Frame(self.master, bg='indianred3')
+        self._frame = tk.Frame(self.master, bg='indianred3', relief='solid', borderwidth=4, highlightbackground='white', highlightthickness=4, highlightcolor='gray25')
 
+        # Text label @ top of frame.
         self._label1 = tk.Label(self._frame, text='SELECT THE NUMBER OF ELEMENTS PER DIMENSION:', font='HELVETICA 20 bold', bg='salmon', fg='white', relief=tk.FLAT)
         self._label1.pack(expand=True, fill=tk.BOTH, padx=10, pady=10)
 
+        # Scale to get user input for the numbers of elements per dimension.
         self._shapeScale = tk.Scale(self._frame, from_=1, to=10, orient=tk.HORIZONTAL, activebackground='yellow', tickinterval=9, relief=tk.RAISED)
         self._shapeScale.config(background='gray20', fg='white', font='HELVETICA 24 bold', sliderlength=100, sliderrelief=tk.GROOVE)
-        self._shapeScale.pack(expand=True, fill=tk.BOTH, padx=10, pady=10)
+        self._shapeScale.pack(expand=True, fill=tk.X, padx=10, pady=10)
         self._shapeScale.focus()
 
         # Button to direct user to next GUI.
-        self._nextButton = tk.Button(self._frame, text='NEXT', font='Helvetica 60 bold', command= lambda: transfer(), relief=tk.RAISED)
-        self._nextButton.pack(expand=True, fill=tk.BOTH, padx=10, pady=10)
+        self._buttonFrame = tk.Frame(self.master, relief='solid', borderwidth=4, highlightbackground='gray25', highlightthickness=4, highlightcolor='white')
+        self._nextButton = tk.Button(self._buttonFrame, text='NEXT', font='Helvetica 60 bold', command=lambda: transfer())
+        self._nextButton.pack(fill=tk.BOTH)
 
+        # Pack and draw in the widgets.
         self._frame.pack(fill=tk.BOTH, padx=14, pady=14, expand=True)
+        self._buttonFrame.pack(fill=tk.BOTH, padx=14, pady=(0, 14))
 
         # Window attributes.
         self.master.title('Visual Array')
@@ -154,36 +170,38 @@ class VisualArray:
             root.mainloop()
 
         self.master = master
-        self._frame = tk.Frame(self.master, bg='indianred3')
+        self._frame = tk.Frame(self.master, bg='indianred3', relief='solid', borderwidth=4, highlightbackground='white', highlightthickness=4, highlightcolor='gray25')
         self._frame.grid_columnconfigure(0, weight=1)
         self._frame.grid_rowconfigure(0, weight=1)
         self._frame.grid_rowconfigure(1, weight=1)
         self._frame.grid_rowconfigure(2, weight=1)
 
         self._label1 = tk.Label(self._frame, text='Select Data Type:', font='Helvetica 40 bold', bg='indianred3', fg='white')
-        self._label1.grid(row=0, column=0, sticky='nsew', padx=20, pady=20)
+        self._label1.grid(row=0, column=0, sticky='nsew', padx=20, pady=10)
 
         # Present user with list of options of data types to select from.
-        self._listBox = tk.Listbox(self._frame, justify='center', cursor='dot', bg='mintcream', fg='lightslateblue', font='HELVETICA 20 bold')
-        self._listBox.config(selectbackground='oldlace', relief='raised', selectmode='single', height=4)
+        self._listBox = tk.Listbox(self._frame, justify='center', cursor='dot', bg='mintcream', fg='lightslateblue', font='HELVETICA 24 bold')
+        self._listBox.config(relief='solid', borderwidth=4, highlightbackground='white', highlightthickness=4, highlightcolor='gray25', selectmode='single', height=4)
         self._listBox.insert(1, 'Integer')
         self._listBox.insert(2, 'Boolean')
         self._listBox.insert(3, 'Float')
         self._listBox.insert(4, 'String')
         self._listBox.select_set(0)
-        self._listBox.grid(row=1, column=0, sticky='nsew', padx=20, pady=20)
+        self._listBox.grid(row=1, column=0, sticky='nsew', padx=20, pady=10)
         self._listBox.focus()
 
         # Button to direct user to next GUI.
-        self._nextButton = tk.Button(self._frame, text='NEXT', font='Helvetica 60 bold', command=lambda: transfer())
-        self._nextButton.grid(row=2, column=0, sticky='nsew', padx=20, pady=20)
+        self._buttonFrame = tk.Frame(self.master, relief='solid', borderwidth=4, highlightbackground='gray25', highlightthickness=4, highlightcolor='white')
+        self._nextButton = tk.Button(self._buttonFrame, text='NEXT', font='Helvetica 60 bold', command=lambda: transfer())
+        self._nextButton.pack(fill=tk.BOTH)
 
         self._frame.pack(fill=tk.BOTH, padx=14, pady=14, expand=True)
+        self._buttonFrame.pack(fill=tk.BOTH, padx=14, pady=(0, 14))
 
         # Window attributes.
         self.master.title('Visual Array')
         self.master.configure(bg='gray25')
-        self.master.minsize(600, 375)
+        self.master.minsize(600, 400)
         self.master.bind("<Return>", lambda cmd: transfer())
         self.master.mainloop()
 
@@ -271,7 +289,7 @@ class VisualArray:
                 self._listBox3.config(bg='bisque')
                 self._listBox.config(relief='groove')
 
-        # Method destroys array hub window and restarts application.
+        # Method destroys array hub window and restarts application; (Binded to the newArray button)
         def restart():
             self.master.destroy()
             self.master.quit()
@@ -280,10 +298,10 @@ class VisualArray:
             root.mainloop()
 
         self.master = master
-        self._frame = tk.Frame(self.master, bg='indianred3')
+        self._frame = tk.Frame(self.master, bg='indianred3', relief='solid', borderwidth=4, highlightbackground='white', highlightthickness=4, highlightcolor='gray25')
 
-        # Frame holds the listBoxes for each dimension. (Displays array's contents)
-        self._arrayFrame = tk.Frame(self._frame, bg='indianred')
+        # Frame holds the listBoxes for each dimension. (Displaying the array's contents)
+        self._arrayFrame = tk.Frame(self._frame, bg='indianred', relief='solid', borderwidth=2, highlightbackground='gray25', highlightthickness=2, highlightcolor='gray25')
         self._label1 = tk.Label(self._arrayFrame, text='Array Contents:', fg='white', bg='black', font='Helvetica 24 bold')
         self._arrayFrame.grid_columnconfigure(0, weight=1)
         self._arrayFrame.grid_columnconfigure(1, weight=1)
@@ -312,8 +330,8 @@ class VisualArray:
             self._label1.pack(fill=tk.X, expand=True)
             self._listBox.pack(fill=tk.BOTH, expand=True)
 
+            # Specified label output needs to be altered slightly depending on the dimensions of the array.
             self.msg2 = "You selected: array[" + str(list(self.array.flatten()).index(int(self._listBox.get('active')))) + "]"
-            self.selectionLabel = tk.Label(self._frame, text=self.msg2, font='HELVETICA 14 bold', bg='lightyellow', fg='black')
 
         elif self.get_NumDimensions() == 2:
             for element in self.array[0]:
@@ -326,7 +344,6 @@ class VisualArray:
             self._listBox2.pack(side=tk.RIGHT, expand=True, fill=tk.BOTH)
 
             self.msg2 = "You selected: array[0][" + str(list(self.array.flatten()).index(int(self._listBox.get('active')))) + "]"
-            self.selectionLabel = tk.Label(self._frame, text=self.msg2, font='HELVETICA 14 bold', bg='lightyellow', fg='black')
 
         else:
             for element in self.array[0]:
@@ -336,23 +353,25 @@ class VisualArray:
             for element in self.array[2]:
                 self._listBox3.insert(tk.END, element)
 
-            self._label1.grid(row=0, column=0, columnspan=3, sticky='ew')
+            self._label1.grid(row=0, column=0, columnspan=3, sticky='nsew')
             self._listBox.grid(row=1, column=0, sticky='nsew', columnspan=1)
             self._listBox2.grid(row=1, column=1, sticky='nsew', columnspan=1)
             self._listBox3.grid(row=1, column=2, sticky='nsew', columnspan=1)
 
             self.msg2 = "You selected: array[0][" + str(list(self.array.flatten()).index(int(self._listBox.get('active')))) + "]"
-            self.selectionLabel = tk.Label(self._frame, text=self.msg2, font='HELVETICA 14 bold', bg='lightyellow', fg='black')
 
         self._arrayFrame.pack(fill=tk.BOTH, padx=20, expand=True, pady=5)
+        # Pre-select the first item in the first dimension from listbox.
+        self._listBox.select_set(0)
+        self._listBox.focus()
+
+        # Draw and pack in the selection label; This label shows the user the selected index of the element from within the listBoxes.
+        self.selectionLabel = tk.Label(self._frame, text=self.msg2, font='HELVETICA 14 bold', bg='gray99', fg='black', justify='center')
+        self.selectionLabel.config(borderwidth=2, relief='solid', highlightbackground='gray25', highlightthickness=2, highlightcolor='gray25')
         self.selectionLabel.pack(fill=tk.BOTH, padx=20, pady=5, expand=True)
 
         # Frame containing buttons with methods to perform on the given array.
-        self._methodsFrame = tk.Frame(self._frame, bg='indianred3')
-
-        self._label2 = tk.Label(self._methodsFrame, text='Array Methods:', fg='white', bg='black', font='Helvetica 24 bold')
-        self._label2.grid(row=0, column=0, columnspan=3, sticky='ew')
-
+        self._methodsFrame = tk.Frame(self._frame, bg='indianred3', relief='solid', borderwidth=2, highlightbackground='gray25', highlightthickness=2, highlightcolor='gray25')
         self._methodsFrame.grid_columnconfigure(0, weight=1)
         self._methodsFrame.grid_columnconfigure(1, weight=1)
         self._methodsFrame.grid_columnconfigure(2, weight=1)
@@ -360,38 +379,67 @@ class VisualArray:
         self._methodsFrame.grid_rowconfigure(1, weight=1)
         self._methodsFrame.grid_rowconfigure(2, weight=1)
 
+        self._label2 = tk.Label(self._methodsFrame, text='Array Methods:', fg='white', bg='black', font='Helvetica 24 bold')
+        self._label2.grid(row=0, column=0, columnspan=3, sticky='nsew')
+
         # Array Method Buttons.
-        self.insertButton = tk.Button(self._methodsFrame, text='INSERT', font='HELVETICA 30 bold', width=20, command=lambda: terminal(1)).grid(row=1, column=0, sticky='nsew')
-        self.deleteButton = tk.Button(self._methodsFrame, text='DELETE', font='HELVETICA 30 bold', width=20, command=lambda: terminal(2)).grid(row=2, column=0, sticky='nsew')
-        self.searchButton = tk.Button(self._methodsFrame, text='SEARCH', font='HELVETICA 30 bold', width=20, command=lambda: terminal(3)).grid(row=1, column=1, sticky='nsew')
-        self.splitButton = tk.Button(self._methodsFrame, text='SPLIT', font='HELVETICA 30 bold', width=20, command=lambda: terminal(4)).grid(row=2, column=1, sticky='nsew')
-        self.sortButton = tk.Button(self._methodsFrame, text='SORT', font='HELVETICA 30 bold', width=20).grid(row=1, column=2, sticky='nsew')
-        self.filterButton = tk.Button(self._methodsFrame, text='FILTER', font='HELVETICA 30 bold', width=20).grid(row=2, column=2, sticky='nsew')
+        self._insertButton = tk.Button(self._methodsFrame, text='INSERT', font='HELVETICA 30 bold', width=20, command=lambda: terminal(1))
+        self._insertButton.grid(row=1, column=0, sticky='nsew')
 
-        self._methodsFrame.pack(fill=tk.BOTH, padx=20, expand=True, pady=5)
+        self._deleteButton = tk.Button(self._methodsFrame, text='DELETE', font='HELVETICA 30 bold', width=20, command=lambda: terminal(2))
+        self._deleteButton.grid(row=2, column=0, sticky='nsew')
 
-        # Pre-select the first item in the first dimension from listbox.
-        self._listBox.select_set(0)
+        self._searchButton = tk.Button(self._methodsFrame, text='SEARCH', font='HELVETICA 30 bold', width=20, command=lambda: terminal(3))
+        self._searchButton.grid(row=1, column=1, sticky='nsew')
+
+        self._splitButton = tk.Button(self._methodsFrame, text='SPLIT', font='HELVETICA 30 bold', width=20, command=lambda: terminal(4))
+        self._splitButton.grid(row=2, column=1, sticky='nsew')
+
+        self._sortButton = tk.Button(self._methodsFrame, text='SORT', font='HELVETICA 30 bold', width=20, command=lambda: terminal(5))
+        self._sortButton.grid(row=1, column=2, sticky='nsew')
+
+        self._filterButton = tk.Button(self._methodsFrame, text='FILTER', font='HELVETICA 30 bold', width=20, command=lambda: terminal(6))
+        self._filterButton.grid(row=2, column=2, sticky='nsew')
+
+        self._methodsFrame.pack(fill=tk.BOTH, padx=20, expand=True, pady=10)
 
         # Bottom frame containing array's attributes and a new array button.
-        self._bottomFrame = tk.Frame(self._frame, bg='gray25')
-        self.newArrayButton = tk.Button(self._bottomFrame, text='NEW ARRAY', font='HELVETICA 30 bold', width=20, command=lambda: restart())
-        self.newArrayButton.pack(side=tk.RIGHT, padx=60)
+        self._bottomFrame = tk.Frame(self.master, bg='gray25', relief='solid', borderwidth=4, highlightbackground='white', highlightthickness=4, highlightcolor='gray25')
+        self._bottomFrame.columnconfigure(0, weight=1)
+        self._bottomFrame.columnconfigure(1, weight=1)
+        self._bottomFrame.columnconfigure(2, weight=1)
+        self._bottomFrame.rowconfigure(0, weight=1)
 
-        # Label containing attributes of the array.
-        self.msg = 'Number of Dimensions: ' + str(self.get_NumDimensions()) + '\nType of data: ' + str(self.get_DataType()) + '\n[' + str(self._listBox.size()) + '] # of elements.'
-        self.arrayAttributeLabel = tk.Label(self._bottomFrame, text=self.msg, bg='gray25', fg='white', font='HELVETICA 18')
-        self.arrayAttributeLabel.pack(side=tk.LEFT, padx=60)
+        # Frame containing attributes of the array.
+        self._arrayAttributeFrame = tk.Frame(self._bottomFrame, bg='gray25')
+        self._arrayAttributeFrame.columnconfigure(0, weight=1)
+        self._arrayAttributeFrame.columnconfigure(1, weight=1)
+        self._arrayAttributeFrame.rowconfigure(0, weight=1)
+        self._arrayAttributeFrame.rowconfigure(1, weight=1)
+        self._arrayAttributeFrame.rowconfigure(2, weight=1)
+        self._aLabel1 = tk.Label(self._arrayAttributeFrame, text=str(self.get_NumDimensions()) + ' Dimensions', bg='gray25', fg='white', font='Helvetica 15 bold')
+        self._aLabel1.grid(row=0, column=0, sticky='nsw', columnspan=2)
+        self._aLabel2 = tk.Label(self._arrayAttributeFrame, text=str(self.get_NumElements()) + ' Elements per dimension', bg='gray25', fg='white', font='Helvetica 15 bold')
+        self._aLabel2.grid(row=1, column=0, sticky='nsw', columnspan=2)
+        self._aLabel3 = tk.Label(self._arrayAttributeFrame, text="Datatype: " + str(self.get_DataType()), bg='gray25', fg='white', font='Helvetica 14 bold')
+        self._aLabel3.grid(row=2, column=0, sticky='nsw', columnspan=2)
 
-        self._bottomFrame.pack(fill=tk.BOTH, padx=20, expand=True, pady=5)
+        # Restart program and launch new array.
+        self._newArrayButton = tk.Button(self._bottomFrame, text='NEW ARRAY', font='HELVETICA 30 bold', width=20, command=lambda: restart())
+        self._newArrayButton.pack(side=tk.RIGHT, padx=80, expand=True, fill=tk.BOTH, pady=15)
+        self._newArrayButton.grid(row=0, column=2, sticky='ew', padx=20)
 
-        self._frame.pack(fill=tk.BOTH, padx=14, pady=14, expand=True)
+        # Pack/Draw in the frames.
+        self._arrayAttributeFrame.grid(row=0, column=0, sticky='nsew', padx=20, columnspan=2, pady=5)
+        self._frame.pack(fill=tk.BOTH, padx=14, pady=(14, 4), expand=True)
+        self._bottomFrame.pack(fill=tk.BOTH, padx=14, pady=(0, 14), expand=True)
 
         # Window attributes.
         self.master.config(bg='gray25')
         self.master.title('Visual Array Hub')
         self.master.geometry('875x525')
-        self.master.minsize(875, 660)
+        self.master.minsize(875, 700)
+
         # These bindings to the window ensure that the window is being updated immediately, and displaying the correct selection from listBoxes.
         self._listBox.bind('<<ListboxSelect>>', lambda cmd: tagger(1))
         self._listBox2.bind('<<ListboxSelect>>', lambda cmd: tagger(2))
@@ -461,8 +509,8 @@ class VisualArray:
         self.label3.pack(fill=tk.X, padx=20, pady=20)
         self.indexEntry = tk.Entry(self.alpha, font='HELVETICA 24 bold', justify='center', textvariable=self.index)
         self.indexEntry.pack(fill=tk.X, padx=20)
-        self.insertButton = tk.Button(self.alpha, text='INSERT', font='HELVETICA 24 bold', command=lambda: add())
-        self.insertButton.pack(fill=tk.X, padx=20, pady=20)
+        self._insertButton = tk.Button(self.alpha, text='INSERT', font='HELVETICA 24 bold', command=lambda: add())
+        self._insertButton.pack(fill=tk.X, padx=20, pady=20)
 
         self.alpha.title('INSERT:')
         self.alpha.config(bg='indianred')
@@ -532,8 +580,8 @@ class VisualArray:
         self.indexDeleteEntry = tk.Entry(self.alpha, font='HELVETICA 24 bold', justify='center')
         self.indexDeleteEntry.pack(fill=tk.X, padx=20)
         self.indexDeleteEntry.focus()
-        self.deleteButton = tk.Button(self.alpha, text='DELETE', font='HELVETICA 24 bold', command=lambda: remove())
-        self.deleteButton.pack(fill=tk.X, padx=20, pady=20)
+        self._deleteButton = tk.Button(self.alpha, text='DELETE', font='HELVETICA 24 bold', command=lambda: remove())
+        self._deleteButton.pack(fill=tk.X, padx=20, pady=20)
 
         self.alpha.geometry('400x225')
         self.alpha.title('INSERT:')
@@ -609,8 +657,8 @@ class VisualArray:
         self.indexSearchEntry = tk.Entry(self.alpha, font='HELVETICA 24 bold', justify='center')
         self.indexSearchEntry.pack(fill=tk.X, padx=20)
         self.indexSearchEntry.focus()
-        self.searchButton = tk.Button(self.alpha, text='SEARCH', font='HELVETICA 24 bold', command=lambda: find())
-        self.searchButton.pack(fill=tk.X, padx=20, pady=20)
+        self._searchButton = tk.Button(self.alpha, text='SEARCH', font='HELVETICA 24 bold', command=lambda: find())
+        self._searchButton.pack(fill=tk.X, padx=20, pady=20)
 
         # Search window attributes.
         self.alpha.geometry('400x225')
