@@ -153,16 +153,34 @@ class VisualArray:
     def prompt_DataType(self, master):
 
         # Method saves selected item from listBox (Data Type) and transfers user to next GUI.
+        # Method also initializes the array with the attributes specified by the user,  before entering the arrayHub.
         def transfer():
             self.set_DataType(self._listBox.get(self._listBox.curselection()))
             self.master.destroy()
             self.master.quit()
 
-            # Dictionary to hold the numpy data types and translates user selection from listbox to numpy data type.
-            typeConv = {'Integer': 'i', 'Boolean': 'b', 'Float': 'f', 'String': 'S'}
-
             # Initiate and create the array with user specified attributes; (Create the array before entering the arrayHub.)
-            self.array = np.zeros(shape=(int(self.get_NumDimensions()), int(self.get_NumElements())), dtype=int)
+            if self.get_DataType() == 'Integer':
+                self.array = np.zeros(shape=(int(self.get_NumDimensions()), int(self.get_NumElements())), dtype='i')
+            elif self.get_DataType() == 'Float':
+                self.array = np.zeros(shape=(int(self.get_NumDimensions()), int(self.get_NumElements())), dtype='f')
+            elif self.get_DataType() == 'Boolean':
+                self.array = np.full((int(self.get_NumDimensions()), int(self.get_NumElements())), True)
+            else:
+                self.array = np.full((int(self.get_NumDimensions()), int(self.get_NumElements())), '\'\'')
+
+            # Log into the console the array's contents; For testing/debugging purposes.
+            print('\nArray Attributes:')
+            print('#Dimensions: ', str(self.get_NumDimensions()))
+            print('#Elements: ', str(self.get_NumElements()))
+            print('Data Type: ', str(self.get_DataType()))
+            print('\nArray contents:')
+            self.x = 0
+            for self.element in self.array:
+                self.x += 1
+                print('Dimension [{0}]: {1}'.format(self.x, self.element))
+
+            print('\n[View arrayHub]')
 
             # Direct user to the next screen.
             root = tk.Tk()
@@ -321,6 +339,21 @@ class VisualArray:
         self._listBox3 = tk.Listbox(self._arrayFrame, justify='center', font='VERDANA 26 bold', selectborderwidth=1, bg='bisque')
         self._listBox3.config(relief='groove', selectbackground='gray25', selectforeground='white')
 
+        # Pre-select the first item in the first dimension from listbox.
+        self._listBox.select_set(0)
+        self._listBox.focus()
+
+        def conv(tag):
+            if tag == 'Integer':
+                x = int(self._listBox.get('active'))
+            elif tag == 'Float':
+                x = float(self._listBox.get('active'))
+            elif tag == 'String':
+                x = str(self._listBox.get('active'))
+            elif tag == 'Boolean':
+                x = bool(self._listBox.get('active'))
+            return x
+
         # Pack in other listbox widgets depending on dimensions specified by user.
         if self.get_NumDimensions() == 1:
             # Fill the first dimensional listBox with content from self.array[0].
@@ -331,7 +364,7 @@ class VisualArray:
             self._listBox.pack(fill=tk.BOTH, expand=True)
 
             # Specified label output needs to be altered slightly depending on the dimensions of the array.
-            self.msg2 = "You selected: array[" + str(list(self.array.flatten()).index(int(self._listBox.get('active')))) + "]"
+            self.msg2 = "You selected: array[" + str(list(self.array.flatten()).index(conv(self.get_DataType()))) + "]"
 
         elif self.get_NumDimensions() == 2:
             for element in self.array[0]:
@@ -343,7 +376,7 @@ class VisualArray:
             self._listBox.pack(side=tk.LEFT, expand=True, fill=tk.BOTH)
             self._listBox2.pack(side=tk.RIGHT, expand=True, fill=tk.BOTH)
 
-            self.msg2 = "You selected: array[0][" + str(list(self.array.flatten()).index(int(self._listBox.get('active')))) + "]"
+            self.msg2 = "You selected: array[0][" + str(list(self.array.flatten()).index(conv(self.get_DataType()))) + "]"
 
         else:
             for element in self.array[0]:
@@ -358,12 +391,9 @@ class VisualArray:
             self._listBox2.grid(row=1, column=1, sticky='nsew', columnspan=1)
             self._listBox3.grid(row=1, column=2, sticky='nsew', columnspan=1)
 
-            self.msg2 = "You selected: array[0][" + str(list(self.array.flatten()).index(int(self._listBox.get('active')))) + "]"
+            self.msg2 = "You selected: array[0][" + str(list(self.array.flatten()).index(conv(self.get_DataType()))) + "]"
 
         self._arrayFrame.pack(fill=tk.BOTH, padx=20, expand=True, pady=5)
-        # Pre-select the first item in the first dimension from listbox.
-        self._listBox.select_set(0)
-        self._listBox.focus()
 
         # Draw and pack in the selection label; This label shows the user the selected index of the element from within the listBoxes.
         self.selectionLabel = tk.Label(self._frame, text=self.msg2, font='HELVETICA 14 bold', bg='gray99', fg='black', justify='center')
@@ -383,22 +413,22 @@ class VisualArray:
         self._label2.grid(row=0, column=0, columnspan=3, sticky='nsew')
 
         # Array Method Buttons.
-        self._insertButton = tk.Button(self._methodsFrame, text='INSERT', font='HELVETICA 30 bold', width=20, command=lambda: terminal(1))
+        self._insertButton = tk.Button(self._methodsFrame, text='INSERT', font='HELVETICA 30 bold', width=20, command=lambda: terminal(1), relief='raised')
         self._insertButton.grid(row=1, column=0, sticky='nsew')
 
-        self._deleteButton = tk.Button(self._methodsFrame, text='DELETE', font='HELVETICA 30 bold', width=20, command=lambda: terminal(2))
+        self._deleteButton = tk.Button(self._methodsFrame, text='DELETE', font='HELVETICA 30 bold', width=20, command=lambda: terminal(2), relief='raised')
         self._deleteButton.grid(row=2, column=0, sticky='nsew')
 
-        self._searchButton = tk.Button(self._methodsFrame, text='SEARCH', font='HELVETICA 30 bold', width=20, command=lambda: terminal(3))
+        self._searchButton = tk.Button(self._methodsFrame, text='SEARCH', font='HELVETICA 30 bold', width=20, command=lambda: terminal(3), relief='raised')
         self._searchButton.grid(row=1, column=1, sticky='nsew')
 
-        self._splitButton = tk.Button(self._methodsFrame, text='SPLIT', font='HELVETICA 30 bold', width=20, command=lambda: terminal(4))
+        self._splitButton = tk.Button(self._methodsFrame, text='SPLIT', font='HELVETICA 30 bold', width=20, command=lambda: terminal(4), relief='raised')
         self._splitButton.grid(row=2, column=1, sticky='nsew')
 
-        self._sortButton = tk.Button(self._methodsFrame, text='SORT', font='HELVETICA 30 bold', width=20, command=lambda: terminal(5))
+        self._sortButton = tk.Button(self._methodsFrame, text='SORT', font='HELVETICA 30 bold', width=20, command=lambda: terminal(5), relief='raised')
         self._sortButton.grid(row=1, column=2, sticky='nsew')
 
-        self._filterButton = tk.Button(self._methodsFrame, text='FILTER', font='HELVETICA 30 bold', width=20, command=lambda: terminal(6))
+        self._filterButton = tk.Button(self._methodsFrame, text='FILTER', font='HELVETICA 30 bold', width=20, command=lambda: terminal(6), relief='raised')
         self._filterButton.grid(row=2, column=2, sticky='nsew')
 
         self._methodsFrame.pack(fill=tk.BOTH, padx=20, expand=True, pady=10)
