@@ -1,6 +1,9 @@
 import tkinter as tk
 import numpy as np
 
+# For console outputs and debugging purposes.
+from tabulate import tabulate
+
 
 # Class represents a Numpy array being visualized through a Tkinter window.
 # noinspection PyAttributeOutsideInit
@@ -167,20 +170,33 @@ class VisualArray:
             elif self.get_DataType() == 'Boolean':
                 self.array = np.full((int(self.get_NumDimensions()), int(self.get_NumElements())), True)
             else:
-                self.array = np.full((int(self.get_NumDimensions()), int(self.get_NumElements())), '\'\'')
+                self.array = np.full((int(self.get_NumDimensions()), int(self.get_NumElements())), "''")
 
             # Log into the console the array's contents; For testing/debugging purposes.
-            print('\nArray Attributes:')
-            print('#Dimensions: ', str(self.get_NumDimensions()))
-            print('#Elements: ', str(self.get_NumElements()))
-            print('Data Type: ', str(self.get_DataType()))
-            print('\nArray contents:')
-            self.x = 0
-            for self.element in self.array:
-                self.x += 1
-                print('Dimension [{0}]: {1}'.format(self.x, self.element))
+            print(tabulate([[]], headers=['\nArray Attributes:'], tablefmt='presto'))
+            print(tabulate([[self.get_NumDimensions(), self.get_NumElements(), self.get_DataType()]], headers=['Dimensions', 'Elements', 'Data Type:'], tablefmt='fancy_grid'))
 
-            print('\n[View arrayHub]')
+            print(tabulate([[]], headers=['\nArray Contents:'], tablefmt='presto'))
+            self.temp1 = []
+            self.x = 0
+            self.temp2 = []
+            for element in self.array:
+                self.x += 1
+                self.temp1.append(self.x)
+                self.temp2.append(list(element))
+
+            if self.x == 1:
+                print(tabulate([[self.temp2[0]]], headers=['Dimension ['+str(self.temp1[0]) + ']'], tablefmt='fancy_grid'))
+            elif self.x == 2:
+                print(tabulate([[self.temp2[0],self.temp2[1]]],
+                               headers=['Dimension ['+str(self.temp1[0])+']','Dimension [' + str(self.temp1[1]) + ']'],
+                               tablefmt='fancy_grid'))
+            elif self.x == 3:
+                print(tabulate([[self.temp2[0],self.temp2[1], self.temp2[2]]],
+                               headers=['Dimension ['+str(self.temp1[0])+']','Dimension [' + str(self.temp1[1]) + ']', 'Dimension [' + str(self.temp1[2]) + ']'],
+                               tablefmt='fancy_grid'))
+
+            print(tabulate([[]], headers=['\nPlease See Array Hub window.'], tablefmt='simple'))
 
             # Direct user to the next screen.
             root = tk.Tk()
@@ -439,6 +455,8 @@ class VisualArray:
         self._bottomFrame.columnconfigure(1, weight=1)
         self._bottomFrame.columnconfigure(2, weight=1)
         self._bottomFrame.rowconfigure(0, weight=1)
+        self._bottomFrame.rowconfigure(1, weight=1)
+        self._bottomFrame.rowconfigure(2, weight=1)
 
         # Frame containing attributes of the array.
         self._arrayAttributeFrame = tk.Frame(self._bottomFrame, bg='gray25')
@@ -456,8 +474,7 @@ class VisualArray:
 
         # Restart program and launch new array.
         self._newArrayButton = tk.Button(self._bottomFrame, text='NEW ARRAY', font='HELVETICA 30 bold', width=20, command=lambda: restart())
-        self._newArrayButton.pack(side=tk.RIGHT, padx=80, expand=True, fill=tk.BOTH, pady=15)
-        self._newArrayButton.grid(row=0, column=2, sticky='ew', padx=20)
+        self._newArrayButton.grid(row=0, column=2, sticky='ew', padx=20, pady=5, rowspan=3)
 
         # Pack/Draw in the frames.
         self._arrayAttributeFrame.grid(row=0, column=0, sticky='nsew', padx=20, columnspan=2, pady=5)
@@ -474,6 +491,7 @@ class VisualArray:
         self._listBox.bind('<<ListboxSelect>>', lambda cmd: tagger(1))
         self._listBox2.bind('<<ListboxSelect>>', lambda cmd: tagger(2))
         self._listBox3.bind('<<ListboxSelect>>', lambda cmd: tagger(3))
+
         self.master.mainloop()
 
     # Method inserts element at given location in array.
@@ -481,34 +499,86 @@ class VisualArray:
 
         def add():
             try:
-                np.insert(self.array, int(self.indexEntry.get()), int(self.elementEntry.get()))
+                print('Attempting to insert element: [' + str(self.elementEntry.get()) + '] @ index: [' + str(self.indexEntry.get()) + "]")
+                '''
+                if self.get_NumDimensions() == 1:
+                    print('self.insert() debug:')
+                    print(self.array)
+
+                    if self.get_DataType() == 'Integer':
+                        self.array[0][int(self.indexEntry.get())] = int(self.elementEntry.get())
+                    elif self.get_DataType() == 'Float':
+                        self.array[0][int(self.indexEntry.get())] = self.elementEntry.get()
+
+                    print('Successful 1 dimension insert: ' + str(self.array) + '\n')
+                else:
+                    if self.tkvar.get() == 'Dimension [1]':
+                        self.array[0][int(self.indexEntry.get())] = self.elementEntry.get()
+                    elif self.tkvar.get() == 'Dimension [2]':
+                        self.array[1][int(self.indexEntry.get())] = self.elementEntry.get()
+                    if self.tkvar.get() == 'Dimension [3]':
+                        self.array[2][int(self.indexEntry.get())] = self.elementEntry.get()
+                '''
+                '''
+                print('-----------')
                 print('Inserted [' + str(self.elementEntry.get()) + '] @ Index ' + str(self.indexEntry.get()))
                 print(self.array)
+                '''
+
                 self.master.destroy()
                 self.master.quit()
                 root = tk.Tk()
                 self.arrayHub(root)
                 root.mainloop()
+
             except ValueError:
                 # Display an error window if the entered element/index cannot be added into the array.
-                self.valError_Window = tk.Tk()
+                self._valErrorWindow = tk.Tk()
 
-                self.label9 = tk.Label(self.valError_Window, text='You have entered a value for the element \nor index that cannot be inserted into the array.')
-                self.label9.config(bg='indianred', fg='white', font='HELVETICA 14 bold')
-                self.label9.pack(fill=tk.X, padx=30, pady=(25, 10))
-                self.label10 = tk.Label(self.valError_Window, text='Please try again, using a different value.', bg='indianred', fg='white', font='HELVETICA 14 bold')
-                self.label10.pack(fill=tk.X, padx=30)
+                self._frame = tk.Frame(self._valErrorWindow, bg='indianred3')
 
-                self.closeButton = tk.Button(self.valError_Window, text='CLOSE', font='HELVETICA 24 bold', command=lambda: self.valError_Window.destroy())
-                self.closeButton.pack(fill=tk.X, padx=20, pady=(10, 0))
+                self._label = tk.Label(self._frame, text='You have entered a value for the element \nor index that cannot be inserted into the array.')
+                self._label.config(bg='indianred3', fg='white', font='HELVETICA 14 bold')
+                self._label.pack(fill=tk.X, pady=(20, 6), expand=True)
+                self._label2 = tk.Label(self._frame, text='Your element must be ' + str(self.get_DataType()).lower() + ' type.')
+                self._label2.config(bg='ivory', fg='indianred3', font='HELVETICA 14 bold')
+                self._label2.pack(fill=tk.X, expand=True)
 
-                self.valError_Window.config(bg='indianred')
-                self.valError_Window.geometry('375x175')
-                self.valError_Window.minsize(300, 175)
-                self.valError_Window.title('Value Error!')
-                self.valError_Window.resizable(False, False)
-                self.valError_Window.bind('<Return>', lambda cmd: self.valError_Window.destroy())
-                self.valError_Window.mainloop()
+                self.closeButton = tk.Button(self._frame, text='CLOSE', font='HELVETICA 24 bold', command=lambda: self._valErrorWindow.destroy())
+                self.closeButton.pack(fill=tk.X, padx=20, pady=(10, 10), expand=True)
+
+                self._frame.pack(padx=10, pady=10, expand=True, fill=tk.BOTH)
+
+                self._valErrorWindow.config(bg='gray25')
+                self._valErrorWindow.geometry('375x175')
+                self._valErrorWindow.minsize(300, 175)
+                self._valErrorWindow.title('Value Error!')
+                self._valErrorWindow.resizable(False, False)
+                self._valErrorWindow.bind('<Return>', lambda cmd: self._valErrorWindow.destroy())
+                self._valErrorWindow.mainloop()
+
+            except IndexError:
+                # Display an error window if the index specified by the user is invalid.
+                self._indexErrorWindow = tk.Tk()
+
+                self._frame = tk.Frame(self._indexErrorWindow, bg='indianred3')
+
+                self._label = tk.Label(self._frame, text='You have entered an index value that \ndoesn\'t correspond with this array. \nPlease enter a valid index.')
+                self._label.config(bg='ivory', fg='indianred3', font='HELVETICA 14 bold')
+                self._label.pack(fill=tk.X, pady=(25, 10), expand=True)
+
+                self.closeButton = tk.Button(self._frame, text='CLOSE', font='HELVETICA 24 bold', command=lambda: self._indexErrorWindow.destroy())
+                self.closeButton.pack(fill=tk.X, padx=20, pady=(10, 10), expand=True)
+
+                self._frame.pack(padx=10, pady=10, expand=True, fill=tk.BOTH)
+
+                self._indexErrorWindow.config(bg='gray25')
+                self._indexErrorWindow.geometry('375x175')
+                self._indexErrorWindow.minsize(300, 175)
+                self._indexErrorWindow.title('Index Error!')
+                self._indexErrorWindow.resizable(False, False)
+                self._indexErrorWindow.bind('<Return>', lambda cmd: self._indexErrorWindow.destroy())
+                self._indexErrorWindow.mainloop()
 
         # String variables to hold given array and element entered by user.
         self.element = tk.StringVar()
@@ -523,6 +593,7 @@ class VisualArray:
         self.elementEntry.pack(fill=tk.X, padx=20)
         self.elementEntry.focus()
 
+        # If the dimension isn't 1, then a drop-down menu will be presented to the user to selected which dimension to enter element in.
         if self.get_NumDimensions() != 1:
             self.alpha.after(1, self.alpha.minsize(400, 400))
             self.tkvar = tk.StringVar()
@@ -530,10 +601,13 @@ class VisualArray:
             x = 0
             while x < int(self.get_NumDimensions()):
                 x += 1
-                self.options.insert(x-1, str('Dimension [' + str(x) + "]"))
+                self.options.append(str('Dimension [' + str(x) + "]"))
             self.label2 = tk.Label(self.alpha, text='Select Dimension: ', bg='gray28', fg='white', font='HELVETICA 20 bold', )
             self.label2.pack(fill=tk.X, padx=20, pady=20)
-            self.dimensionBox = tk.OptionMenu(self.alpha, self.tkvar, self.options).pack(fill=tk.X, padx=20)
+
+            self.tkvar = tk.StringVar(self.alpha)
+            self.tkvar.set(self.options[0])
+            self.dimensionBox = tk.OptionMenu(self.alpha, self.tkvar, *self.options).pack(fill=tk.BOTH, padx=20)
 
         self.label3 = tk.Label(self.alpha, text='@ Index: ', bg='gray28', fg='white', font='HELVETICA 20 bold', )
         self.label3.pack(fill=tk.X, padx=20, pady=20)
@@ -546,7 +620,6 @@ class VisualArray:
         self.alpha.config(bg='indianred')
         self.alpha.minsize(400, 300)
         self.alpha.bind('<Return>', lambda cmd: add())
-        self.alpha.resizable(False, False)
         self.alpha.mainloop()
 
     # Method removes element at given location in array.
@@ -580,25 +653,25 @@ class VisualArray:
 
             except ValueError:
                 # Display an error window if the entered element/index cannot be added into the array.
-                self.valError_Window = tk.Tk()
+                self._valErrorWindow = tk.Tk()
 
-                self.label9 = tk.Label(self.valError_Window, text='You have entered an index value\nthat cannot be removed from the array.')
+                self.label9 = tk.Label(self._valErrorWindow, text='You have entered an index value\nthat cannot be removed from the array.')
                 self.label9.config(bg='indianred', fg='white', font='HELVETICA 14 bold')
                 self.label9.pack(fill=tk.X, padx=30, pady=(25, 10))
-                self.label10 = tk.Label(self.valError_Window, text='Please try a different value again.')
+                self.label10 = tk.Label(self._valErrorWindow, text='Please try a different value again.')
                 self.label10.config(bg='indianred', fg='white', font='HELVETICA 14 bold')
                 self.label10.pack(fill=tk.X, padx=30)
 
-                self.closeButton = tk.Button(self.valError_Window, text='CLOSE', font='HELVETICA 24 bold', command=lambda: self.valError_Window.destroy())
+                self.closeButton = tk.Button(self._valErrorWindow, text='CLOSE', font='HELVETICA 24 bold', command=lambda: self._valErrorWindow.destroy())
                 self.closeButton.pack(fill=tk.X, padx=20, pady=(10, 0))
 
-                self.valError_Window.config(bg='indianred')
-                self.valError_Window.geometry('375x175')
-                self.valError_Window.minsize(300, 175)
-                self.valError_Window.title('Value Error!')
-                self.valError_Window.resizable(False, False)
-                self.valError_Window.bind('<Return>', lambda cmd: self.valError_Window.destroy())
-                self.valError_Window.mainloop()
+                self._valErrorWindow.config(bg='indianred')
+                self._valErrorWindow.geometry('375x175')
+                self._valErrorWindow.minsize(300, 175)
+                self._valErrorWindow.title('Value Error!')
+                self._valErrorWindow.resizable(False, False)
+                self._valErrorWindow.bind('<Return>', lambda cmd: self._valErrorWindow.destroy())
+                self._valErrorWindow.mainloop()
 
         self.alpha = master
 
