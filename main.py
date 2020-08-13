@@ -168,9 +168,20 @@ class VisualArray:
             elif self.get_DataType() == 'Float':
                 self.array = np.zeros(shape=(int(self.get_NumDimensions()), int(self.get_NumElements())), dtype='f')
             elif self.get_DataType() == 'Boolean':
-                self.array = np.full((int(self.get_NumDimensions()), int(self.get_NumElements())), True)
-            else:
-                self.array = np.full((int(self.get_NumDimensions()), int(self.get_NumElements())), "''")
+                self.array = np.ones((int(self.get_NumDimensions()), int(self.get_NumElements())), dtype=np.bool)
+            elif self.get_DataType() == 'String':
+                self.array = np.empty([int(self.get_NumDimensions()), int(self.get_NumElements())], dtype="<U20")
+                self.x = 0
+                # Since numpy creates an uninitialized array of string (empty) by initializing random numbers, we will reset them back to "''" to rep. blank string.
+                # Only doing this for visual appearances in the GUI, usually not the most efficient method when working with numpy arrays of fixed size.
+                while self.x < self.get_NumElements():
+                    self.array[0][self.x] = "''"
+                    if self.get_NumDimensions() == 2:
+                        self.array[1][self.x] = "''"
+                    elif self.get_NumDimensions() == 3:
+                        self.array[1][self.x] = "''"
+                        self.array[2][self.x] = "''"
+                    self.x += 1
 
             # Log into the console the array's contents; For testing/debugging purposes.
             print(tabulate([[]], headers=['\nArray Attributes:'], tablefmt='presto'))
@@ -189,11 +200,11 @@ class VisualArray:
                 print(tabulate([[self.temp2[0]]], headers=['Dimension ['+str(self.temp1[0]) + ']'], tablefmt='fancy_grid'))
             elif self.x == 2:
                 print(tabulate([[self.temp2[0],self.temp2[1]]],
-                               headers=['Dimension ['+str(self.temp1[0])+']','Dimension [' + str(self.temp1[1]) + ']'],
+                               headers=['Dimension ['+str(self.temp1[0])+']', 'Dimension [' + str(self.temp1[1]) + ']'],
                                tablefmt='fancy_grid'))
             elif self.x == 3:
                 print(tabulate([[self.temp2[0],self.temp2[1], self.temp2[2]]],
-                               headers=['Dimension ['+str(self.temp1[0])+']','Dimension [' + str(self.temp1[1]) + ']', 'Dimension [' + str(self.temp1[2]) + ']'],
+                               headers=['Dimension ['+str(self.temp1[0])+']', 'Dimension [' + str(self.temp1[1]) + ']', 'Dimension [' + str(self.temp1[2]) + ']'],
                                tablefmt='fancy_grid'))
 
             print(tabulate([[]], headers=['\nPlease See Array Hub window.'], tablefmt='simple'))
@@ -499,31 +510,48 @@ class VisualArray:
 
         def add():
             try:
-                print('Attempting to insert element: [' + str(self.elementEntry.get()) + '] @ index: [' + str(self.indexEntry.get()) + "]")
-                '''
-                if self.get_NumDimensions() == 1:
-                    print('self.insert() debug:')
-                    print(self.array)
 
-                    if self.get_DataType() == 'Integer':
-                        self.array[0][int(self.indexEntry.get())] = int(self.elementEntry.get())
-                    elif self.get_DataType() == 'Float':
-                        self.array[0][int(self.indexEntry.get())] = self.elementEntry.get()
+                if self.get_DataType() != 'Boolean':
+                    self.temp = ("'" + str(self.elementEntry.get()) + "'") if self.get_DataType() == 'String' else str(self.elementEntry.get())
 
-                    print('Successful 1 dimension insert: ' + str(self.array) + '\n')
+                    if self.get_NumDimensions() == 1:
+                        # For visual appeal, we will include the quotation marks around inputed string elements to depict string elements.
+                        self.array[0][int(self.indexEntry.get())] = self.temp
+                        print(tabulate([[]],
+                                       headers=['\nInserted Element [' + self.elementEntry.get() + "] @ Index [" + self.indexEntry.get() + "] in Dimension [1]"],
+                                       tablefmt='presto'))
+
+                    elif self.get_NumDimensions() == 2 or 3:
+                        if self.tkvar.get() == 'Dimension [1]':
+                            self.array[0][int(self.indexEntry.get())] = self.temp
+                        elif self.tkvar.get() == 'Dimension [2]':
+                            self.array[1][int(self.indexEntry.get())] = self.temp
+                        if self.tkvar.get() == 'Dimension [3]':
+                            self.array[2][int(self.indexEntry.get())] = self.temp
+                        print(tabulate([[]],
+                                       headers=['\nInserted Element [' + self.elementEntry.get() + "] @ Index [" + self.indexEntry.get() + "] in " + self.tkvar.get()],
+                                       tablefmt='presto'))
+
                 else:
-                    if self.tkvar.get() == 'Dimension [1]':
-                        self.array[0][int(self.indexEntry.get())] = self.elementEntry.get()
-                    elif self.tkvar.get() == 'Dimension [2]':
-                        self.array[1][int(self.indexEntry.get())] = self.elementEntry.get()
-                    if self.tkvar.get() == 'Dimension [3]':
-                        self.array[2][int(self.indexEntry.get())] = self.elementEntry.get()
-                '''
-                '''
-                print('-----------')
-                print('Inserted [' + str(self.elementEntry.get()) + '] @ Index ' + str(self.indexEntry.get()))
-                print(self.array)
-                '''
+                    self.boolConv = {"True": 1, "False": 0}
+
+                    if self.get_NumDimensions() == 1:
+                        self.array[0][int(self.indexEntry.get())] = self.boolConv.get(self.boolVar.get())
+                        print(tabulate([[]],
+                                       headers=['\nInserted Element [' + self.boolVar.get() + "] @ Index [" + self.indexEntry.get() + "] in Dimension [1]"],
+                                       tablefmt='presto'))
+
+                    elif self.get_NumDimensions() == 2 or 3:
+                        if self.tkvar.get() == 'Dimension [1]':
+                            self.array[0][int(self.indexEntry.get())] = self.boolConv.get(self.boolVar.get())
+                        elif self.tkvar.get() == 'Dimension [2]':
+                            self.array[1][int(self.indexEntry.get())] = self.boolConv.get(self.boolVar.get())
+                        if self.tkvar.get() == 'Dimension [3]':
+                            self.array[2][int(self.indexEntry.get())] = self.boolConv.get(self.boolVar.get())
+
+                    print(tabulate([[]],
+                                   headers=['\nInserted Element [' + self.boolVar.get() + "] @ Index [" + self.indexEntry.get() + "] in " + self.tkvar.get()],
+                                   tablefmt='presto'))
 
                 self.master.destroy()
                 self.master.quit()
@@ -589,9 +617,19 @@ class VisualArray:
 
         self.label1 = tk.Label(self.alpha, text='Insert Element:', bg='gray28', fg='white', font='HELVETICA 20 bold')
         self.label1.pack(fill=tk.X, padx=20, pady=20)
-        self.elementEntry = tk.Entry(self.alpha, font='HELVETICA 24 bold', justify='center', textvariable=self.element)
-        self.elementEntry.pack(fill=tk.X, padx=20)
-        self.elementEntry.focus()
+
+        # If the data type selected is boolean, than the user may only pick from the True/False options from drop-down box for the element.
+        if self.get_DataType() != 'Boolean':
+            self.elementEntry = tk.Entry(self.alpha, font='HELVETICA 24 bold', justify='center', textvariable=self.element)
+            self.elementEntry.pack(fill=tk.X, padx=20)
+            self.elementEntry.focus()
+
+        else:
+            self.boolVar = tk.StringVar(self.alpha)
+            self.options2 = ['True', 'False']
+            self.boolVar.set(self.options2[0])
+            self.elementBox = tk.OptionMenu(self.alpha, self.boolVar, *self.options2)
+            self.elementBox.pack(fill=tk.BOTH, padx=20)
 
         # If the dimension isn't 1, then a drop-down menu will be presented to the user to selected which dimension to enter element in.
         if self.get_NumDimensions() != 1:
@@ -620,14 +658,39 @@ class VisualArray:
         self.alpha.config(bg='indianred')
         self.alpha.minsize(400, 300)
         self.alpha.bind('<Return>', lambda cmd: add())
+        self.alpha.resizable(False, False)
         self.alpha.mainloop()
 
     # Method removes element at given location in array.
     def delete(self, master):
         def remove():
             try:
-                self.elementRemoved = self.array.pop(int(self.indexDeleteEntry.get()))
-                print('Deleted element [' + str(self.elementRemoved) + '] @ Index [' + str(self.indexDeleteEntry.get()) + "]")
+                # When an element is deleted, it's index value sets the element back to it's 'null' or default value when the array was first initialized.
+                self.nullConv = {'Integer': 0, 'Float': 0.0, 'Boolean': 1, 'String': "''"}
+                if self.get_NumDimensions() == 1:
+                    print(tabulate([[]],
+                                   headers=['\nDeleted Element [' + str(self.array[0][int(self.indexDeleteEntry.get())]) + "] @ Index [" + self.indexDeleteEntry.get() + "] in Dimension [1]"],
+                                   tablefmt='presto'))
+                    self.array[0][int(self.indexDeleteEntry.get())] = self.nullConv.get(self.get_DataType())
+
+                elif self.get_NumDimensions() != 1:
+                    if self.tkvar.get() == 'Dimension [1]':
+                        print(tabulate([[]],
+                                       headers=['\nDeleted Element [' + str(self.array[0][int(self.indexDeleteEntry.get())]) + "] @ Index [" + self.indexDeleteEntry.get() + "] in" + self.tkvar.get()],
+                                       tablefmt='presto'))
+                        self.array[0][int(self.indexDeleteEntry.get())] = self.nullConv.get(self.get_DataType())
+
+                    elif self.tkvar.get() == 'Dimension [2]':
+                        print(tabulate([[]],
+                                       headers=['\nDeleted Element [' + str(self.array[1][int(self.indexDeleteEntry.get())]) + "] @ Index [" + self.indexDeleteEntry.get() + "] in" + self.tkvar.get()],
+                                       tablefmt='presto'))
+                        self.array[1][int(self.indexDeleteEntry.get())] = self.nullConv.get(self.get_DataType())
+                    elif self.tkvar.get() == 'Dimension [3]':
+                        print(tabulate([[]],
+                                       headers=['\nDeleted Element [' + str(self.array[2][int(self.indexDeleteEntry.get())]) + "] @ Index [" + self.indexDeleteEntry.get() + "] in" + self.tkvar.get()],
+                                       tablefmt='presto'))
+                        self.array[2][int(self.indexDeleteEntry.get())] = self.nullConv.get(self.get_DataType())
+
                 self.master.destroy()
                 self.master.quit()
                 tunnel = tk.Tk()
@@ -683,13 +746,34 @@ class VisualArray:
         self.indexDeleteEntry = tk.Entry(self.alpha, font='HELVETICA 24 bold', justify='center')
         self.indexDeleteEntry.pack(fill=tk.X, padx=20)
         self.indexDeleteEntry.focus()
+
+        # If more than one dimension is present, than a drop-down menu must be presented to the user to specify which dimension to delete element from.
+        if self.get_NumDimensions() != 1:
+            self.alpha.geometry('400x280')
+            self.alpha.minsize(400, 280)
+            self.tkvar = tk.StringVar()
+            self.options = []
+            x = 0
+            while x < int(self.get_NumDimensions()):
+                x += 1
+                self.options.append(str('Dimension [' + str(x) + "]"))
+            self.label2 = tk.Label(self.alpha, text='Select Dimension: ', bg='gray28', fg='white', font='HELVETICA 20 bold', )
+            self.label2.pack(fill=tk.X, padx=20, pady=20)
+
+            self.tkvar = tk.StringVar(self.alpha)
+            self.tkvar.set(self.options[0])
+            self.dimensionBox = tk.OptionMenu(self.alpha, self.tkvar, *self.options).pack(fill=tk.BOTH, padx=20)
+
+        else:
+            self.alpha.geometry('400x200')
+            self.alpha.minsize(400, 200)
+
         self._deleteButton = tk.Button(self.alpha, text='DELETE', font='HELVETICA 24 bold', command=lambda: remove())
         self._deleteButton.pack(fill=tk.X, padx=20, pady=20)
 
-        self.alpha.geometry('400x225')
+        # Window attributes.
         self.alpha.title('INSERT:')
         self.alpha.config(bg='indianred')
-        self.alpha.minsize(400, 225)
         self.alpha.bind('<Return>', lambda cmd: remove())
         self.alpha.resizable(False, False)
         self.alpha.mainloop()
