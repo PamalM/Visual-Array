@@ -1,18 +1,33 @@
-import tkinter as tk
+# Visual Array Project by Pamal Mangat.
+# (Please see GitHub readme file for project description)
+
+"""
+Basic Run-down of the program:
+1] Initiate a Visual Array (VA) object by passing a (tk.Tk()) tkinter window object into it's constructor (__init())
+2] User is prompted for the #dimensions for the array through a prompt window; (This is all completed within the __init__())
+3] User is then prompted for #Elements per dimension, via prompt_ArrayShape().
+4] Afterwards, the user is prompted for the data type for the array, via prompt_DataType().
+5] Finally, user is directed to the arrayHub() window that contains all the respective methods that can be performed on the array.
+"""
+
+# Numpy library allows us to create arrays that are much more space efficient and provide better code-optimization.
 import numpy as np
 
-# For console outputs and debugging purposes.
+# Tkinter library allows us to visualize the the numpy array in a Graphical-User-Interface (GUI).
+import tkinter as tk
+
+# Tabulate library is utilized for the console messages and debugging messages printed by the program during execution.
+# Provides for a clean console output, and better visual appeal to the user/programmer when debugging or running the program.
 from tabulate import tabulate
 
 
 # Class represents a Numpy array being visualized through a Tkinter window.
-# noinspection PyAttributeOutsideInit
 class VisualArray:
 
-    # Constructor; Prompts user for for number of dimensions for the array.
+    # Constructor; Prompts user for for number of dimensions for the array through a small prompt window.
     def __init__(self, master):
 
-        # Array attributes (Initially set to None/Empty).
+        # Array attributes.
         self.array = []
         self.numDimensions = None
         self.numElements = None
@@ -522,6 +537,7 @@ class VisualArray:
                                        tablefmt='presto'))
 
                     elif self.get_NumDimensions() == 2 or 3:
+                        self.temp = ("'" + str(self.elementEntry.get()) + "'") if self.get_DataType() == 'String' else str(self.elementEntry.get())
                         if self.tkvar.get() == 'Dimension [1]':
                             self.array[0][int(self.indexEntry.get())] = self.temp
                         elif self.tkvar.get() == 'Dimension [2]':
@@ -844,14 +860,34 @@ class VisualArray:
         self.indexSearchEntry = tk.Entry(self.alpha, font='HELVETICA 24 bold', justify='center')
         self.indexSearchEntry.pack(fill=tk.X, padx=20)
         self.indexSearchEntry.focus()
+
+        # If more than one dimension is present, than a drop-down menu must be presented to the user to specify which dimension to delete element from.
+        if self.get_NumDimensions() != 1:
+            self.alpha.geometry('400x280')
+            self.alpha.minsize(400, 280)
+            self.tkvar = tk.StringVar()
+            self.options = []
+            x = 0
+            while x < int(self.get_NumDimensions()):
+                x += 1
+                self.options.append(str('Dimension [' + str(x) + "]"))
+            self.label2 = tk.Label(self.alpha, text='Select Dimension: ', bg='gray28', fg='white', font='HELVETICA 20 bold', )
+            self.label2.pack(fill=tk.X, padx=20, pady=20)
+
+            self.tkvar = tk.StringVar(self.alpha)
+            self.tkvar.set(self.options[0])
+            self.dimensionBox = tk.OptionMenu(self.alpha, self.tkvar, *self.options).pack(fill=tk.BOTH, padx=20)
+
+        else:
+            self.alpha.geometry('400x200')
+            self.alpha.minsize(400, 200)
+
         self._searchButton = tk.Button(self.alpha, text='SEARCH', font='HELVETICA 24 bold', command=lambda: find())
         self._searchButton.pack(fill=tk.X, padx=20, pady=20)
 
         # Search window attributes.
-        self.alpha.geometry('400x225')
-        self.alpha.title('Search:')
+        self.alpha.title('SEARCH:')
         self.alpha.config(bg='indianred')
-        self.alpha.minsize(400, 225)
         self.alpha.bind('<Return>', lambda cmd: find())
         self.alpha.resizable(False, False)
         self.alpha.mainloop()
