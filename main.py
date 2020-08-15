@@ -788,7 +788,7 @@ class VisualArray:
         self._deleteButton.pack(fill=tk.X, padx=20, pady=20)
 
         # Window attributes.
-        self.alpha.title('INSERT:')
+        self.alpha.title('DELETE:')
         self.alpha.config(bg='indianred')
         self.alpha.bind('<Return>', lambda cmd: remove())
         self.alpha.resizable(False, False)
@@ -799,32 +799,73 @@ class VisualArray:
         # Method find's element in given array.
         def find():
 
-            def searchBind():
+            def searchAgainBind():
                 self.displaySearch_Window.destroy()
-                self.search()
+                root = tk.Tk()
+                self.search(root)
+                root.mainloop()
 
             try:
-                self.searchedIndex = self.array.index(self.indexSearchEntry.get())
+                if self.get_DataType() == 'Boolean':
+                    self.searchedIndex = np.where(self.array == bool(self.indexSearchEntry.get()))
+                elif self.get_DataType() == 'String':
+                    self.searchedIndex = np.where(self.array == "'" + str(self.indexSearchEntry.get()) + "'")
+                elif self.get_DataType() == 'Float':
+                    self.searchedIndex = np.where(self.array == float(self.indexSearchEntry.get()))
+                elif self.get_DataType() == 'Integer':
+                    self.searchedIndex = np.where(self.array == int(self.indexSearchEntry.get()))
+
                 self.searchedElement = self.indexSearchEntry.get()
-                print('Element [' + str(self.indexSearchEntry.get()) + '] found @ index: ' + str(self.searchedIndex))
+
+                # Output to console the search message.
+
+                self.searchZip = list(zip(self.searchedIndex[0], self.searchedIndex[1]))
+                self.x = 0
+                self.dimensions = []
+                self.indexes = []
+
+                # Iterate through search results and add the index and dimension to their own respective lists to be printed back to the user.
+                # We need to alter the dimension that is returned, by adding 1 so that dimension 1 is 1 not 0. (Due to python indexing by zero)
+                for result in self.searchZip:
+                    self.x += 1
+                    self.dimensions.append(result[0] + 1)
+                    self.indexes.append(result[1])
+
+                self.zip = zip(self.indexes, self.dimensions)
+
+                print(tabulate([[]], headers=['\nSearched for element [' + str(self.indexSearchEntry.get()) + '] within the array.'], tablefmt='presto'))
+                print('[Search results below]:')
+                print(tabulate([*self.zip], headers=['Index', 'Dimension'], tablefmt='fancy_grid'))
+                print('Total Occurences: [' +  str(self.x) + "].")
+
+                # Close current window and display the search results in new window.
                 self.alpha.destroy()
 
                 self.displaySearch_Window = tk.Tk()
 
-                self.label12 = tk.Label(self.displaySearch_Window, text='Element: ' + str(self.searchedElement), bg='black', fg='white', font='HELVETICA 44 bold')
-                self.label12.pack(fill=tk.X, padx=10, pady=(10, 10))
+                self.label1 = tk.Label(self.displaySearch_Window, text='Search results for Element [' + str(self.searchedElement) + "]: ")
+                self.label1.pack(fill=tk.BOTH, padx=10, pady=10, expand=True)
 
-                self.label13 = tk.Label(self.displaySearch_Window, text='Index: ' + str(self.searchedIndex), bg='gray20', fg='white', font='HELVETICA 54 bold')
-                self.label13.pack(fill=tk.X, padx=10)
+                self.resultBox = tk.Listbox(self.displaySearch_Window, justify='center', font='VERDANA 26 bold', selectborderwidth=1, bg='bisque')
+
+                self.y = 0
+                if self.get_NumDimensions() == 1:
+                    for result in self.indexes:
+                        self.resultBox.insert(tk.END, 'array[' + str(result) + "]")
+                else:
+                    for result in self.dimensions:
+                        self.resultBox.insert(tk.END, 'array[' + str(result-1) + "][" + str(self.indexes[self.y]) + "]")
+                        self.y += 1
+
+                self.resultBox.select_set(0)
+
+                self.resultBox.pack(fill=tk.BOTH, padx=10, pady=10, expand=True)
 
                 self._bottomFrame = tk.Frame(self.displaySearch_Window, bg='indianred')
-
-                self.searchAgainButton = tk.Button(self._bottomFrame, text='SEARCH', font='HELVETICA 24 bold', width=10, command=lambda: searchBind())
-                self.searchAgainButton.pack(side=tk.LEFT, fill=tk.X)
-
+                self.searchAgainButton = tk.Button(self._bottomFrame, text='NEW SEARCH', font='HELVETICA 24 bold', width=10, command=lambda: searchAgainBind())
+                self.searchAgainButton.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
                 self.doneButton = tk.Button(self._bottomFrame, text='DONE', font='HELVETICA 24 bold', width=10, command=lambda: self.displaySearch_Window.destroy())
-                self.doneButton.pack(side=tk.RIGHT, fill=tk.X, padx=1)
-
+                self.doneButton.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
                 self._bottomFrame.pack(fill=tk.BOTH, padx=10, pady=10)
 
                 self.displaySearch_Window.title('Search Complete')
@@ -861,31 +902,12 @@ class VisualArray:
         self.indexSearchEntry.pack(fill=tk.X, padx=20)
         self.indexSearchEntry.focus()
 
-        # If more than one dimension is present, than a drop-down menu must be presented to the user to specify which dimension to delete element from.
-        if self.get_NumDimensions() != 1:
-            self.alpha.geometry('400x280')
-            self.alpha.minsize(400, 280)
-            self.tkvar = tk.StringVar()
-            self.options = []
-            x = 0
-            while x < int(self.get_NumDimensions()):
-                x += 1
-                self.options.append(str('Dimension [' + str(x) + "]"))
-            self.label2 = tk.Label(self.alpha, text='Select Dimension: ', bg='gray28', fg='white', font='HELVETICA 20 bold', )
-            self.label2.pack(fill=tk.X, padx=20, pady=20)
-
-            self.tkvar = tk.StringVar(self.alpha)
-            self.tkvar.set(self.options[0])
-            self.dimensionBox = tk.OptionMenu(self.alpha, self.tkvar, *self.options).pack(fill=tk.BOTH, padx=20)
-
-        else:
-            self.alpha.geometry('400x200')
-            self.alpha.minsize(400, 200)
-
         self._searchButton = tk.Button(self.alpha, text='SEARCH', font='HELVETICA 24 bold', command=lambda: find())
         self._searchButton.pack(fill=tk.X, padx=20, pady=20)
 
         # Search window attributes.
+        self.alpha.geometry('400x200')
+        self.alpha.minsize(400, 200)
         self.alpha.title('SEARCH:')
         self.alpha.config(bg='indianred')
         self.alpha.bind('<Return>', lambda cmd: find())
