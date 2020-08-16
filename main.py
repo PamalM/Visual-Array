@@ -915,15 +915,131 @@ class VisualArray:
         self.alpha.mainloop()
 
     def split_(self, master):
+
+        # Method attempts to split the array with user specified method and split/axis values if applicable.
+        def _split():
+
+            try:
+
+                if self._axisVal.get() != 'N/A':
+                    # Setting the default value of the axis to 0 if user doesn't enter anything.
+                    if self._axisVal.get() == '':
+                        self._axis = 0
+
+                    else:
+                        self._axis = int(self._axisVal.get())
+
+                    x = np.array_split(self.array, int(self._splitVal.get()), axis=self._axis)
+                    for result in x:
+                        print(result)
+
+                else:
+
+                    if self._splitVal.get() == "":
+                        raise ValueError
+
+                    self._method = {'hsplit()': np.hsplit(self.array, int(self._splitVal.get())),
+                                    'hstack()': np.hstack(self.array),
+                                    'vstack()': np.vstack(self.array),
+                                    'dstack()': np.dstack(self.array),
+                                    'vsplit()': np.vsplit(self.array, int(self._splitVal.get())),
+                                    'dsplit()': np.dsplit(self.array, int(self._splitVal.get()))}
+
+                    x = self._method.get(str(self.tkvar.get()))
+                    for result in x:
+                        print(result)
+
+                print(x)
+
+            except ValueError as VE:
+                err = VE
+                # Display an error window if the entered element/index cannot be added into the array.
+                self._valErrorWindow = tk.Tk()
+
+                if self._splitVal.get() == "":
+                    self.label9 = tk.Label(self._valErrorWindow, text="No value entered for split amount.")
+                    self.label9.config(text="No value entered for split amount." + "\nPlease supply a value for the empty entry bar.")
+                    self.label9.config(bg='ivory', fg='indianred3', font='HELVETICA 12 bold', justify='center')
+                    self.label9.pack(fill=tk.BOTH, pady=5, padx=10)
+                    self._valErrorWindow.geometry('300x100')
+                    self._valErrorWindow.minsize(300, 100)
+                    self.closeButton = tk.Button(self._valErrorWindow, text='CLOSE', font='HELVETICA 24 bold', command=lambda: self._valErrorWindow.destroy())
+                    self.closeButton.pack(fill=tk.X, pady=5, padx=10)
+
+                elif self._splitVal.get().isdigit() is not True:
+                    self.label9 = tk.Label(self._valErrorWindow, text="Please enter an integer value into the split amount.")
+                    self.label9.config(bg='ivory', fg='indianred3', font='HELVETICA 12 bold', justify='center')
+                    self.label9.pack(fill=tk.BOTH, pady=5, padx=10)
+                    self._valErrorWindow.geometry('300x95')
+                    self._valErrorWindow.minsize(300, 95)
+                    self.closeButton = tk.Button(self._valErrorWindow, text='CLOSE', font='HELVETICA 24 bold', command=lambda: self._valErrorWindow.destroy())
+                    self.closeButton.pack(fill=tk.X, pady=5, padx=10)
+
+                else:
+                    self._valErrorWindow.grid_columnconfigure(0, weight=1)
+                    self._valErrorWindow.grid_rowconfigure(0, weight=1)
+                    self._valErrorWindow.grid_rowconfigure(1, weight=1)
+                    self.label9 = tk.Label(self._valErrorWindow, text=err)
+                    self.label9.config(bg='ivory', fg='indianred3', font='HELVETICA 12 bold', justify='center')
+                    self.label9.grid(row=0, column=0, sticky='nsew', pady=15)
+                    self._valErrorWindow.geometry('300x150')
+                    self._valErrorWindow.minsize(300, 150)
+                    self.closeButton = tk.Button(self._valErrorWindow, text='CLOSE', font='HELVETICA 24 bold', command=lambda: self._valErrorWindow.destroy())
+                    self.closeButton.grid(row=1, column=0, sticky='nsew', pady=15)
+
+                self._valErrorWindow.config(bg='indianred')
+                self._valErrorWindow.title('VALUE ERROR!')
+                self._valErrorWindow.resizable(False, False)
+                self._valErrorWindow.bind('<Return>', lambda cmd: self._valErrorWindow.destroy())
+                self._valErrorWindow.mainloop()
+
+
         self.master = master
 
+        # This method is binded to execute when an option is selected from the split method drop-down menu.
+        def methodSelect():
+            if self.tkvar.get() == 'array_Split()':
+                self._axisEntry.config(state='normal')
+                self._axisVal.set('')
+            else:
+                self._axisEntry.config(state='disabled')
+                self._axisVal.set('N/A')
+            self.master.after(1, self.master.update())
 
+        # Drop-Down menu containing the different split methods that can be performed on the array.
+        self.label1 = tk.Label(self.master, text='Select specific split method:', bg='gray28', fg='white', font='HELVETICA 20 bold').pack(fill=tk.BOTH, padx=10, pady=(10, 5))
+        self.tkvar = tk.StringVar(self.master)
+        self.options = ['array_Split()', 'hsplit()', 'hstack()', 'vstack()', 'dstack()', 'vsplit()', 'dsplit()']
+        self.splitMethodBox = tk.OptionMenu(self.master, self.tkvar, *self.options, command=lambda cmd: methodSelect())
+        self.tkvar.set(self.options[0])
+        self.splitMethodBox.pack(fill=tk.BOTH, padx=10, pady=5)
 
-        self.master.title('Split:')
+        # Entry containing the number of splits to be performed on the array.
+        self.label2 = tk.Label(self.master, text='Enter number of splits:', bg='gray28', fg='white', font='HELVETICA 20 bold').pack(fill=tk.BOTH, padx=10, pady=5)
+        self._splitVal = tk.StringVar()
+        self._splitEntry = tk.Entry(self.master, font='HELVETICA 24 bold', justify='center', textvariable=self._splitVal)
+        self._splitEntry.pack(fill=tk.BOTH, padx=10, pady=5)
+        self._splitEntry.focus()
+
+        self._frame = tk.Frame(self.master, bg='indianred3')
+
+        # If array_Split() is selected by user, then we can split the array also on a given axis; Not available for the other particular methods.
+        self.label3 = tk.Label(self._frame, text='Axis=', bg='gray28', fg='white', font='HELVETICA 20 bold').pack(side=tk.LEFT, fill=tk.X, pady=5)
+        self._axisVal = tk.StringVar(self._frame)
+        self._axisEntry = tk.Entry(self._frame, font='HELVETICA 24 bold', justify='center', textvariable=self._axisVal)
+        self._axisEntry.pack(fill=tk.X, side=tk.RIGHT, pady=5)
+
+        self._frame.pack(fill=tk.X, padx=20, pady=5)
+
+        self._insertButton = tk.Button(self.master, text='INSERT', font='HELVETICA 24 bold', command=lambda: _split())
+        self._insertButton.pack(fill=tk.X, padx=10, pady=5)
+
+        self.master.title('SPLIT:')
         self.master.geometry('400x225')
         self.master.resizable(False, False)
-        self.master.minsize(400, 225)
+        self.master.minsize(400, 280)
         self.master.config(bg='indianred')
+        self.master.bind('<Return>', lambda cmd: _split())
         self.master.mainloop()
 
     # Getter.
