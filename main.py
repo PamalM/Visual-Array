@@ -10,15 +10,22 @@ Basic Run-down of the program:
 5] Finally, user is directed to the arrayHub() window that contains all the respective methods that can be performed on the array.
 """
 
-# Numpy library allows us to create arrays that are much more space efficient and provide better code-optimization.
-import numpy as np
+# Try-Catch to ensure the user has the necessary libraries to execute this program.
+try:
+    # Numpy library allows us to create arrays that are much more space efficient and provide better code-optimization.
+    import numpy as np
 
-# Tkinter library allows us to visualize the the numpy array in a Graphical-User-Interface (GUI).
-import tkinter as tk
+    # Tkinter library allows us to visualize the the numpy array in a Graphical-User-Interface (GUI).
+    import tkinter as tk
 
-# Tabulate library is utilized for the console messages and debugging messages printed by the program during execution.
-# Provides for a clean console output, and better visual appeal to the user/programmer when debugging or running the program.
-from tabulate import tabulate
+    # Tabulate library is utilized for the console messages and debugging messages printed by the program during execution.
+    # Provides for a clean console output, and better visual appeal to the user/programmer when debugging or running the program.
+    from tabulate import tabulate
+    print('[tabulate], [numpy], [tkinter] librariess were successfully imported!')
+
+except ImportError as IE:
+    print('[You do not have the required libraries installed on your machine to execute this program]')
+    print('Please ensure you have the [numpy],[tkinter] and [tabulate] libraries installed.')
 
 
 # Class represents a Numpy array being visualized through a Tkinter window.
@@ -920,36 +927,20 @@ class VisualArray:
         def _split():
 
             try:
-
-                if self._axisVal.get() != 'N/A':
-                    # Setting the default value of the axis to 0 if user doesn't enter anything.
-                    if self._axisVal.get() == '':
-                        self._axis = 0
-
-                    else:
-                        self._axis = int(self._axisVal.get())
-
-                    x = np.array_split(self.array, int(self._splitVal.get()), axis=self._axis)
-                    for result in x:
-                        print(result)
-
+                if self.tkvar.get() == 'hsplit()':
+                    return np.hsplit(self.array, int(self._splitVal.get())), str(self.tkvar.get())
+                elif self.tkvar.get() == 'hstack()':
+                    return np.hstack(self.array), str(self.tkvar.get())
+                elif self.tkvar.get() == 'vstack()':
+                    return np.vstack(self.array), str(self.tkvar.get())
+                elif self.tkvar.get() == 'dstack()':
+                    return np.dstack(self.array), str(self.tkvar.get())
+                elif self.tkvar.get() == 'vsplit()':
+                    return np.vsplit(self.array, int(self._splitVal.get())), str(self.tkvar.get())
+                elif self.tkvar.get() == 'dsplit()':
+                    return np.dsplit(self.array, int(self._splitVal.get())), str(self.tkvar.get())
                 else:
-
-                    if self._splitVal.get() == "":
-                        raise ValueError
-
-                    self._method = {'hsplit()': np.hsplit(self.array, int(self._splitVal.get())),
-                                    'hstack()': np.hstack(self.array),
-                                    'vstack()': np.vstack(self.array),
-                                    'dstack()': np.dstack(self.array),
-                                    'vsplit()': np.vsplit(self.array, int(self._splitVal.get())),
-                                    'dsplit()': np.dsplit(self.array, int(self._splitVal.get()))}
-
-                    x = self._method.get(str(self.tkvar.get()))
-                    for result in x:
-                        print(result)
-
-                print(x)
+                    return np.array_split(self.array, int(self._splitVal.get()), axis=int(self._axisVal.get())), str(self.tkvar.get())
 
             except ValueError as VE:
                 err = VE
@@ -966,7 +957,7 @@ class VisualArray:
                     self.closeButton = tk.Button(self._valErrorWindow, text='CLOSE', font='HELVETICA 24 bold', command=lambda: self._valErrorWindow.destroy())
                     self.closeButton.pack(fill=tk.X, pady=5, padx=10)
 
-                elif self._splitVal.get().isdigit() is not True:
+                if not self._splitVal.get().isdigit() and self._splitVal.get() != 'N/A':
                     self.label9 = tk.Label(self._valErrorWindow, text="Please enter an integer value into the split amount.")
                     self.label9.config(bg='ivory', fg='indianred3', font='HELVETICA 12 bold', justify='center')
                     self.label9.pack(fill=tk.BOTH, pady=5, padx=10)
@@ -979,7 +970,7 @@ class VisualArray:
                     self._valErrorWindow.grid_columnconfigure(0, weight=1)
                     self._valErrorWindow.grid_rowconfigure(0, weight=1)
                     self._valErrorWindow.grid_rowconfigure(1, weight=1)
-                    self.label9 = tk.Label(self._valErrorWindow, text=err)
+                    self.label9 = tk.Label(self._valErrorWindow, text=str(err)+'\nPlease try a value diff. than [' + str(self._axisVal.get()) + "]")
                     self.label9.config(bg='ivory', fg='indianred3', font='HELVETICA 12 bold', justify='center')
                     self.label9.grid(row=0, column=0, sticky='nsew', pady=15)
                     self._valErrorWindow.geometry('300x150')
@@ -993,18 +984,86 @@ class VisualArray:
                 self._valErrorWindow.bind('<Return>', lambda cmd: self._valErrorWindow.destroy())
                 self._valErrorWindow.mainloop()
 
+            except IndexError as IE:
+                # Display an error window if the entered element/index cannot be added into the array.
+                self._valIndexErrorWindow = tk.Tk()
+
+                # Condition checks whether the axis value specified by the user is a valid integer.
+                if not self._axisVal.get().isdigit():
+                    self.label9 = tk.Label(self._valIndexErrorWindow, text="Axis value must be an integer value.")
+                    self.label9.config(bg='ivory', fg='indianred3', font='HELVETICA 12 bold', justify='center')
+                    self.label9.pack(fill=tk.BOTH, pady=5, padx=10)
+                    self._valErrorWindow.geometry('300x95')
+                    self._valErrorWindow.minsize(300, 95)
+                    self.closeButton = tk.Button(self._valIndexErrorWindow, text='CLOSE', font='HELVETICA 24 bold', command=lambda: self._valIndexErrorWindow.destroy())
+                    self.closeButton.pack(fill=tk.X, pady=5, padx=10)
+
+                else:
+                    self._valIndexErrorWindow.grid_columnconfigure(0, weight=1)
+                    self._valIndexErrorWindow.grid_rowconfigure(0, weight=1)
+                    self._valIndexErrorWindow.grid_rowconfigure(1, weight=1)
+                    self.label9 = tk.Label(self._valIndexErrorWindow, text=IE)
+                    self.label9.config(bg='ivory', fg='indianred3', font='HELVETICA 12 bold', justify='center')
+                    self.label9.grid(row=0, column=0, sticky='nsew', pady=15)
+                    self._valIndexErrorWindow.geometry('300x150')
+                    self._valIndexErrorWindow.minsize(300, 150)
+                    self.closeButton = tk.Button(self._valIndexErrorWindow, text='CLOSE', font='HELVETICA 24 bold', command=lambda: self._valIndexErrorWindow.destroy())
+                    self.closeButton.grid(row=1, column=0, sticky='nsew', pady=15)
+
+                self._valIndexErrorWindow.config(bg='indianred')
+                self._valIndexErrorWindow.title('INDEX ERROR!')
+                self._valIndexErrorWindow.resizable(False, False)
+                self._valIndexErrorWindow.bind('<Return>', lambda cmd: self._valIndexErrorWindow.destroy())
+                self._valIndexErrorWindow.mainloop()
+
+        # Pop displays the user their split array after the method has been performed. This will create a copy of the array that the user can export to their machine; .txt format.
+        # ** Please note, this is only a copy of the original array, so closing this window will not affect the original copy of the array. The split result can be exported however.
+        def popUp():
+            x = _split()
+            print('You selected: ', str(x[1]))
+            y = []
+            for element in x[0]:
+                print(element)
+                y.append(element)
+            print(x[0])
+
+            self.alpha = tk.Tk()
+
+            self.label1 = tk.Label(self.alpha, text='You selected:\n' + str(x[1]), bg='indianred3', fg='ivory', font='HELVETICA 20 bold').pack(fill=tk.X, padx=20, pady=10)
+
+            self.label = tk.Label(self.alpha, text=y).pack()
+
+            # Window attributes.
+            self.alpha.title('SPLIT RESULT: ')
+            self.alpha.config(bg='indianred3')
+            self.alpha.resizable(False, False)
+            self.alpha.geometry('500x500')
+            self.alpha.mainloop()
+
 
         self.master = master
 
         # This method is binded to execute when an option is selected from the split method drop-down menu.
+        # Method disabled/enables entry states depending on the method selected from the drop-down menu.
         def methodSelect():
             if self.tkvar.get() == 'array_Split()':
                 self._axisEntry.config(state='normal')
                 self._axisVal.set('')
+                self._splitEntry.config(state='normal')
+                self._splitVal.set('')
+
             else:
+                if self.tkvar.get() == 'hsplit()' or self.tkvar.get() == 'vsplit()' or self.tkvar.get() == 'dsplit()':
+                    self._splitEntry.config(state='normal')
+                    self._splitVal.set('')
+                else:
+                    self._splitEntry.config(state='disabled')
+                    self._splitVal.set('N/A')
+
                 self._axisEntry.config(state='disabled')
                 self._axisVal.set('N/A')
-            self.master.after(1, self.master.update())
+
+                self.master.after(1, self.master.update())
 
         # Drop-Down menu containing the different split methods that can be performed on the array.
         self.label1 = tk.Label(self.master, text='Select specific split method:', bg='gray28', fg='white', font='HELVETICA 20 bold').pack(fill=tk.BOTH, padx=10, pady=(10, 5))
@@ -1031,7 +1090,7 @@ class VisualArray:
 
         self._frame.pack(fill=tk.X, padx=20, pady=5)
 
-        self._insertButton = tk.Button(self.master, text='INSERT', font='HELVETICA 24 bold', command=lambda: _split())
+        self._insertButton = tk.Button(self.master, text='INSERT', font='HELVETICA 24 bold', command=lambda: popUp())
         self._insertButton.pack(fill=tk.X, padx=10, pady=5)
 
         self.master.title('SPLIT:')
@@ -1039,7 +1098,7 @@ class VisualArray:
         self.master.resizable(False, False)
         self.master.minsize(400, 280)
         self.master.config(bg='indianred')
-        self.master.bind('<Return>', lambda cmd: _split())
+        self.master.bind('<Return>', lambda cmd: popUp())
         self.master.mainloop()
 
     # Getter.
