@@ -21,7 +21,14 @@ try:
     # Tabulate library is utilized for the console messages and debugging messages printed by the program during execution.
     # Provides for a clean console output, and better visual appeal to the user/programmer when debugging or running the program.
     from tabulate import tabulate
-    print('[tabulate], [numpy], [tkinter] librariess were successfully imported!')
+
+    # Os library allows us to write .txt files to the user's desktop.
+    # After array's have been split, they don't update in the arrayhub but rather can be saved as a .txt file.
+    import os
+    import getpass
+    import platform
+
+    print('[tabulate], [numpy], [tkinter], [os] librariess were successfully imported!')
 
 except ImportError as IE:
     print('[You do not have the required libraries installed on your machine to execute this program]')
@@ -929,12 +936,6 @@ class VisualArray:
             try:
                 if self.tkvar.get() == 'hsplit()':
                     return np.hsplit(self.array, int(self._splitVal.get())), str(self.tkvar.get())
-                elif self.tkvar.get() == 'hstack()':
-                    return np.hstack(self.array), str(self.tkvar.get())
-                elif self.tkvar.get() == 'vstack()':
-                    return np.vstack(self.array), str(self.tkvar.get())
-                elif self.tkvar.get() == 'dstack()':
-                    return np.dstack(self.array), str(self.tkvar.get())
                 elif self.tkvar.get() == 'vsplit()':
                     return np.vsplit(self.array, int(self._splitVal.get())), str(self.tkvar.get())
                 elif self.tkvar.get() == 'dsplit()':
@@ -1020,26 +1021,64 @@ class VisualArray:
         # ** Please note, this is only a copy of the original array, so closing this window will not affect the original copy of the array. The split result can be exported however.
         def popUp():
             x = _split()
-            print('You selected: ', str(x[1]))
+            print(tabulate([[]], headers=['\nExecuted: ' + str(x[1])], tablefmt='presto'))
+
             y = []
+
             for element in x[0]:
-                print(element)
                 y.append(element)
-            print(x[0])
+
+            z = 0
+            for element in y:
+                for elements in list(element):
+                    y[z] = elements
+                z += 1
 
             self.alpha = tk.Tk()
 
-            self.label1 = tk.Label(self.alpha, text='You selected:\n' + str(x[1]), bg='indianred3', fg='ivory', font='HELVETICA 20 bold').pack(fill=tk.X, padx=20, pady=10)
+            self.label1 = tk.Label(self.alpha, text='You selected:\n' + str(x[1]), bg='indianred3', fg='ivory', font='HELVETICA 20 bold').pack(fill=tk.X, padx=20, pady=5)
 
-            self.label = tk.Label(self.alpha, text=y).pack()
+            self.label = tk.Text(self.alpha, font='Helvetica 18 bold', height=14)
+            for element in y:
+                self.label.tag_configure("center", justify='center')
+                self.label.insert(tk.END, str(element) + "\n")
+                self.label.tag_add("center", "1.0", "end")
+            self.label.pack(padx=20, pady=5, fill=tk.X)
+
+            def saveText():
+                # Get specific username of user's to allow use to write to their local desktop on their machines.
+                username = getpass.getuser()
+
+                # Get the user's machine.
+                uMachine = platform.system()
+                if uMachine == 'Darwin':
+                    filename = "//Users//{0}//Desktop//splitArray.txt".format(username)
+                elif uMachine == 'Windows':
+                    filename = "C:\\Users\\{0}\\Desktop\\splitArray.txt".format(username)
+                elif uMachine == 'Linux':
+                    filename = "//home//{0}//Desktop//splitArray.txt".format(username)
+                else:
+                    filename = 'NOF'
+                if filename != 'NOF':
+                    file = open(filename, 'w')
+                    # Write the contents of the array before split, and after the split alongside,  the attributes specified by the user into the .txt file.
+                    file.write(str(self.label.get("1.0", tk.END)))
+                    file.close()
+                else:
+                    print('Error determining user OS; Error writing to file!')
+
+            # Button saves content's in the textbox to the user's desktop.
+            self.saveButton = tk.Button(self.alpha, text='Save as .txt', font='HELVETICA 24 bold', command=lambda: saveText())
+            self.saveButton.pack(fill=tk.X, padx=20, pady=5)
+
+            self.label2 = tk.Label(self.alpha, text='Saves .txt to your desktop.', bg='indianred3', fg='ivory', font='HELVETICA 10 italic').pack(fill=tk.X, padx=20, pady=5)
 
             # Window attributes.
             self.alpha.title('SPLIT RESULT: ')
             self.alpha.config(bg='indianred3')
             self.alpha.resizable(False, False)
-            self.alpha.geometry('500x500')
+            self.alpha.geometry('500x450')
             self.alpha.mainloop()
-
 
         self.master = master
 
@@ -1053,7 +1092,7 @@ class VisualArray:
                 self._splitVal.set('')
 
             else:
-                if self.tkvar.get() == 'hsplit()' or self.tkvar.get() == 'vsplit()' or self.tkvar.get() == 'dsplit()':
+                if self.tkvar.get() == 'hsplit()' or self.tkvar.get() == 'vsplit()':
                     self._splitEntry.config(state='normal')
                     self._splitVal.set('')
                 else:
@@ -1068,7 +1107,7 @@ class VisualArray:
         # Drop-Down menu containing the different split methods that can be performed on the array.
         self.label1 = tk.Label(self.master, text='Select specific split method:', bg='gray28', fg='white', font='HELVETICA 20 bold').pack(fill=tk.BOTH, padx=10, pady=(10, 5))
         self.tkvar = tk.StringVar(self.master)
-        self.options = ['array_Split()', 'hsplit()', 'hstack()', 'vstack()', 'dstack()', 'vsplit()', 'dsplit()']
+        self.options = ['array_Split()', 'hsplit()', 'vsplit()']
         self.splitMethodBox = tk.OptionMenu(self.master, self.tkvar, *self.options, command=lambda cmd: methodSelect())
         self.tkvar.set(self.options[0])
         self.splitMethodBox.pack(fill=tk.BOTH, padx=10, pady=5)
