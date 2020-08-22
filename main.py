@@ -8,73 +8,105 @@ Basic Run-down of the program:
 3] User is then prompted for #Elements per dimension, via prompt_ArrayShape().
 4] Afterwards, the user is prompted for the data type for the array, via prompt_DataType().
 5] Finally, user is directed to the arrayHub() window that contains all the respective methods that can be performed on the array.
+6] Depending on the method selected, the arrayHub will display a respective window for each method.
 """
+
+
+# Class is utilized to provide typography and color attributes to console messages.
+class Console:
+    purple = '\033[95m'
+    cyan = '\033[96m'
+    darkCyan = '\033[36m'
+    brightBlue = '\u001b[34;1m'
+    blue = '\033[94m'
+    green = '\033[92m'
+    yellow = '\033[93m'
+    red = '\033[91m'
+    magenta = '\u001b[35m'
+    bgBlue = '\u001b[44m'
+    bold = '\033[1m'
+    underline = '\033[4m'
+    end = '\033[0m'
 
 # Try-Catch to ensure the user has the necessary libraries to execute this program.
 try:
-    # Numpy library allows us to create arrays that are much more space efficient and provide better code-optimization.
+    print(Console.yellow + Console.bold + '\n[Welcome to Visual Array]\n' + Console.end)
+    print(Console.bold + Console.cyan + '---------------------------------\n' + Console.end)
+    print(Console.bold + Console.underline + Console.darkCyan + '[Attempting to import required libraries:]' + Console.end)
+
+    # Numpy library allows us to create arrays that are much more space efficient and provide for better code-optimization.
     import numpy as np
+    print(Console.brightBlue + '[Numpy]...' + Console.end)
 
     # Tkinter library allows us to visualize the the numpy array in a Graphical-User-Interface (GUI).
     import tkinter as tk
+    print(Console.brightBlue + '[Tkinter]...' + Console.end)
 
     # Tabulate library is utilized for the console messages and debugging messages printed by the program during execution.
     # Provides for a clean console output, and better visual appeal to the user/programmer when debugging or running the program.
     from tabulate import tabulate
+    print(Console.brightBlue + '[Tabulate]...' + Console.end)
 
-    # Os library allows us to write .txt files to the user's desktop.
-    # After array's have been split, they don't update in the arrayhub but rather can be saved as a .txt file.
+    # Os library allows us to write (.txt) files to the user's desktop on their machine.
     import os
+    print(Console.brightBlue + '[OS]...' + Console.end)
     import getpass
+    print(Console.brightBlue + '[GetPass]...' + Console.end)
     import platform
+    print(Console.brightBlue + '[Platform]...' + Console.end)
 
-    print('[tabulate], [numpy], [tkinter], [os] librariess were successfully imported!')
+    print(Console.green + Console.underline + Console.darkCyan + '[Imports were successful!]\n' + Console.end)
 
-except ImportError as IE:
-    print('[You do not have the required libraries installed on your machine to execute this program]')
-    print('Please ensure you have the [numpy],[tkinter] and [tabulate] libraries installed.')
+except ImportError:
+    print(Console.red + '\n[ImportError: Please ensure you have the following libraries installed on your machine before attemping execution.]\n' + Console.end)
+    np = None
+    tk = None
+    tabulate = None
+    os = None
+    getpass = None
+    platform = None
+
+finally:
+    print(Console.bold + Console.cyan + '---------------------------------\n' + Console.end)
 
 
 # Class represents a Numpy array being visualized through a Tkinter window.
+# noinspection PyAttributeOutsideInit
 class VisualArray:
 
     # Constructor; Prompts user for for number of dimensions for the array through a small prompt window.
     def __init__(self, master):
-
-        # Array attributes.
-        self.array = []
+        self.array = None
         self.numDimensions = None
         self.numElements = None
         self.dataType = None
         self.shape = None
 
-        # Method transfers user to next GUI if entered dimension is within the range (1-3).
-        # Each method will have it's own transfer() method that is unique to that window.
+        # Transfer user to next GUI if entered dimensions is between (1-3).
         def transfer():
             try:
-                # Try to convert entry to integer value; Handled ValueError with notice Window.
                 self.dimension = int(self._dimEntry.get())
 
-                # Check to ensure the entered dimensions are between (1-3).
                 if 1 <= self.dimension <= 3:
                     self.set_NumDimensions(self.dimension)
                     self.master.destroy()
                     self.master.quit()
 
-                    # Root tkinter window directs user to next GUI.
+                    # Transfer user to next GUI using a transfer root link window.
                     root = tk.Tk()
                     self.prompt_ArrayShape(root)
                     root.mainloop()
 
-                # Otherwise, it was a valid integer entry, but not within the range of 1-3.
+                # Otherwise, entered dimension isn't the range of (1-3).
                 else:
                     raise ValueError
 
-            # Otherwise, display notice window to user.
+            # Display notice window to user that explains the ValueError.
             except ValueError:
                 self._noticeWindow = tk.Tk()
-                self._frame = tk.Frame(self._noticeWindow, relief='solid', borderwidth=4, highlightbackground='white', highlightthickness=4)
-                self._frame.config(highlightcolor='gray25', bg='indianred3')
+
+                self._frame = tk.Frame(self._noticeWindow, relief='solid', borderwidth=4, highlightbackground='white',
+                                       highlightthickness=4, highlightcolor='gray25', bg='indianred3')
 
                 self._label = tk.Label(self._frame, text='Invalid Dimension Selected!', font='HELVETICA 22 bold', bg='gray20', fg='white').pack(fill=tk.BOTH, pady=10, padx=20)
                 self._label2 = tk.Label(self._frame, text='Please select a dimension \nbetween 1 and 3.', font='HELVETICA 18', bg='indianred3', fg='white').pack(pady=10, padx=20)
@@ -96,10 +128,8 @@ class VisualArray:
                 self._noticeWindow.title('Notice!')
                 self._noticeWindow.mainloop()
 
-        # Tkinter attributes.
         self.master = master
 
-        # Frame holding contents of the window.
         self._frame = tk.Frame(self.master, bg='indianred3', relief='solid', borderwidth=4, highlightbackground='white', highlightthickness=4, highlightcolor='gray25')
         self._frame.grid_columnconfigure(0, weight=1)
         self._frame.grid_rowconfigure(0, weight=1)
@@ -136,25 +166,20 @@ class VisualArray:
         self.master.bind("<Return>", lambda cmd: transfer())
         self.master.mainloop()
 
-    # Prompts user for the  Array Shape.
+    # Prompts user for the Array Shape.
     def prompt_ArrayShape(self, master):
 
-        # Method transfers user to next GUI.
         def transfer():
             self.set_NumElements(self._shapeScale.get())
             self.master.destroy()
             self.master.quit()
-
-            # Create root link to next window.
             root = tk.Tk()
             self.prompt_DataType(root)
             root.mainloop()
 
-        # Window and frame object containing widgets.
         self.master = master
         self._frame = tk.Frame(self.master, bg='indianred3', relief='solid', borderwidth=4, highlightbackground='white', highlightthickness=4, highlightcolor='gray25')
 
-        # Text label @ top of frame.
         self._label1 = tk.Label(self._frame, text='SELECT THE NUMBER OF ELEMENTS PER DIMENSION:', font='HELVETICA 20 bold', bg='salmon', fg='white', relief=tk.FLAT)
         self._label1.pack(expand=True, fill=tk.BOTH, padx=10, pady=10)
 
@@ -169,7 +194,6 @@ class VisualArray:
         self._nextButton = tk.Button(self._buttonFrame, text='NEXT', font='Helvetica 60 bold', command=lambda: transfer())
         self._nextButton.pack(fill=tk.BOTH)
 
-        # Pack and draw in the widgets.
         self._frame.pack(fill=tk.BOTH, padx=14, pady=14, expand=True)
         self._buttonFrame.pack(fill=tk.BOTH, padx=14, pady=(0, 14))
 
@@ -184,14 +208,12 @@ class VisualArray:
     # Prompts user for the Data Type for array.
     def prompt_DataType(self, master):
 
-        # Method saves selected item from listBox (Data Type) and transfers user to next GUI.
-        # Method also initializes the array with the attributes specified by the user,  before entering the arrayHub.
+        # Method transfers user and initializes the array with the attributes specified, before entering the arrayHub.
         def transfer():
             self.set_DataType(self._listBox.get(self._listBox.curselection()))
             self.master.destroy()
             self.master.quit()
 
-            # Initiate and create the array with user specified attributes; (Create the array before entering the arrayHub.)
             if self.get_DataType() == 'Integer':
                 self.array = np.zeros(shape=(int(self.get_NumDimensions()), int(self.get_NumElements())), dtype='i')
             elif self.get_DataType() == 'Float':
@@ -200,9 +222,10 @@ class VisualArray:
                 self.array = np.ones((int(self.get_NumDimensions()), int(self.get_NumElements())), dtype=np.bool)
             elif self.get_DataType() == 'String':
                 self.array = np.empty([int(self.get_NumDimensions()), int(self.get_NumElements())], dtype="<U20")
+
+                # Added in quotation marks around empty strings, to prevent blank list boxes when String data type is selected.
+                # (Done so, for visual appeal.)
                 self.x = 0
-                # Since numpy creates an uninitialized array of string (empty) by initializing random numbers, we will reset them back to "''" to rep. blank string.
-                # Only doing this for visual appearances in the GUI, usually not the most efficient method when working with numpy arrays of fixed size.
                 while self.x < self.get_NumElements():
                     self.array[0][self.x] = "''"
                     if self.get_NumDimensions() == 2:
@@ -213,32 +236,26 @@ class VisualArray:
                     self.x += 1
 
             # Log into the console the array's contents; For testing/debugging purposes.
-            print(tabulate([[]], headers=['\nArray Attributes:'], tablefmt='presto'))
-            print(tabulate([[self.get_NumDimensions(), self.get_NumElements(), self.get_DataType()]], headers=['Dimensions', 'Elements', 'Data Type:'], tablefmt='fancy_grid'))
+            print(Console.blue + Console.bold + 'New array initialized with attributes:' + Console.end + Console.magenta + Console.bold)
+            print(tabulate([[str(self.get_NumDimensions()), str(self.get_NumElements()), str(self.get_DataType())]],
+                           headers=['Dimensions', 'Elements', 'Data Type:'],
+                           tablefmt='fancy_grid') + '\n' + Console.end)
 
-            print(tabulate([[]], headers=['\nArray Contents:'], tablefmt='presto'))
-            self.temp1 = []
-            self.x = 0
-            self.temp2 = []
+            print(Console.blue + Console.bold + 'Array Contents:' + Console.end + Console.magenta + Console.bold)
+            self.temp1 = []  # Holds number of dimensions.
+            self.temp2 = []  # Holds contents of each dimension.
+            self.dimCount = 0
             for element in self.array:
-                self.x += 1
-                self.temp1.append(self.x)
+                self.dimCount += 1
+                self.temp1.insert(self.dimCount-1, 'Dimension [{0}]'.format(str(self.dimCount)))
                 self.temp2.append(list(element))
 
-            if self.x == 1:
-                print(tabulate([[self.temp2[0]]], headers=['Dimension ['+str(self.temp1[0]) + ']'], tablefmt='fancy_grid'))
-            elif self.x == 2:
-                print(tabulate([[self.temp2[0],self.temp2[1]]],
-                               headers=['Dimension ['+str(self.temp1[0])+']', 'Dimension [' + str(self.temp1[1]) + ']'],
-                               tablefmt='fancy_grid'))
-            elif self.x == 3:
-                print(tabulate([[self.temp2[0],self.temp2[1], self.temp2[2]]],
-                               headers=['Dimension ['+str(self.temp1[0])+']', 'Dimension [' + str(self.temp1[1]) + ']', 'Dimension [' + str(self.temp1[2]) + ']'],
-                               tablefmt='fancy_grid'))
+            print(tabulate([self.temp2], headers=[*self.temp1], tablefmt='fancy_grid') + Console.end)
+            print(Console.bold + Console.green + '-------------------------------------------------------' + Console.end)
+            print(Console.yellow + Console.bold + 'Please See Array Hub window.' + Console.end)
+            print(Console.bold + Console.green + '-------------------------------------------------------' + Console.end)
 
-            print(tabulate([[]], headers=['\nPlease See Array Hub window.'], tablefmt='simple'))
-
-            # Direct user to the next screen.
+            # Transfer.
             root = tk.Tk()
             self.arrayHub(root)
             root.mainloop()
@@ -399,6 +416,7 @@ class VisualArray:
         self._listBox.select_set(0)
         self._listBox.focus()
 
+        # Returns the selected element from listBox 1; Converts listbox selection to correct format and returns it.
         def conv(tag):
             if tag == 'Integer':
                 x = int(self._listBox.get('active'))
@@ -435,19 +453,16 @@ class VisualArray:
             self.msg2 = "You selected: array[0][" + str(list(self.array.flatten()).index(conv(self.get_DataType()))) + "]"
 
         else:
-            for element in self.array[0]:
-                self._listBox.insert(tk.END, element)
-            for element in self.array[1]:
-                self._listBox2.insert(tk.END, element)
-            for element in self.array[2]:
-                self._listBox3.insert(tk.END, element)
+            for element in self.array[0]: self._listBox.insert(tk.END, element)
+            for element in self.array[1]: self._listBox2.insert(tk.END, element)
+            for element in self.array[2]: self._listBox3.insert(tk.END, element)
 
             self._label1.grid(row=0, column=0, columnspan=3, sticky='nsew')
             self._listBox.grid(row=1, column=0, sticky='nsew', columnspan=1)
             self._listBox2.grid(row=1, column=1, sticky='nsew', columnspan=1)
             self._listBox3.grid(row=1, column=2, sticky='nsew', columnspan=1)
 
-            self.msg2 = "You selected: array[0][" + str(list(self.array.flatten()).index(conv(self.get_DataType()))) + "]"
+        self.msg2 = "You selected: array[0][" + str(list(self.array.flatten()).index(conv(self.get_DataType()))) + "]"
 
         self._arrayFrame.pack(fill=tk.BOTH, padx=20, expand=True, pady=5)
 
@@ -539,16 +554,14 @@ class VisualArray:
 
         def add():
             try:
-
+                self.msg = None
                 if self.get_DataType() != 'Boolean':
                     self.temp = ("'" + str(self.elementEntry.get()) + "'") if self.get_DataType() == 'String' else str(self.elementEntry.get())
 
                     if self.get_NumDimensions() == 1:
-                        # For visual appeal, we will include the quotation marks around inputed string elements to depict string elements.
+                        # For visual appeal, we will include the quotation marks around inputted string elements to depict string elements.
                         self.array[0][int(self.indexEntry.get())] = self.temp
-                        print(tabulate([[]],
-                                       headers=['\nInserted Element [' + self.elementEntry.get() + "] @ Index [" + self.indexEntry.get() + "] in Dimension [1]"],
-                                       tablefmt='presto'))
+                        self.msg = 'Inserted Element [' + self.elementEntry.get() + "] @ Index [" + self.indexEntry.get() + "] in Dimension [1]"
 
                     elif self.get_NumDimensions() == 2 or 3:
                         self.temp = ("'" + str(self.elementEntry.get()) + "'") if self.get_DataType() == 'String' else str(self.elementEntry.get())
@@ -558,19 +571,13 @@ class VisualArray:
                             self.array[1][int(self.indexEntry.get())] = self.temp
                         if self.tkvar.get() == 'Dimension [3]':
                             self.array[2][int(self.indexEntry.get())] = self.temp
-                        print(tabulate([[]],
-                                       headers=['\nInserted Element [' + self.elementEntry.get() + "] @ Index [" + self.indexEntry.get() + "] in " + self.tkvar.get()],
-                                       tablefmt='presto'))
+                        self.msg = 'Inserted Element [' + self.elementEntry.get() + "] @ Index [" + self.indexEntry.get() + "] in " + self.tkvar.get()
 
                 else:
                     self.boolConv = {"True": 1, "False": 0}
-
                     if self.get_NumDimensions() == 1:
                         self.array[0][int(self.indexEntry.get())] = self.boolConv.get(self.boolVar.get())
-                        print(tabulate([[]],
-                                       headers=['\nInserted Element [' + self.boolVar.get() + "] @ Index [" + self.indexEntry.get() + "] in Dimension [1]"],
-                                       tablefmt='presto'))
-
+                        self.msg = 'Inserted Element [' + self.boolVar.get() + "] @ Index [" + self.indexEntry.get() + "] in Dimension [1]"
                     elif self.get_NumDimensions() == 2 or 3:
                         if self.tkvar.get() == 'Dimension [1]':
                             self.array[0][int(self.indexEntry.get())] = self.boolConv.get(self.boolVar.get())
@@ -579,9 +586,11 @@ class VisualArray:
                         if self.tkvar.get() == 'Dimension [3]':
                             self.array[2][int(self.indexEntry.get())] = self.boolConv.get(self.boolVar.get())
 
-                    print(tabulate([[]],
-                                   headers=['\nInserted Element [' + self.boolVar.get() + "] @ Index [" + self.indexEntry.get() + "] in " + self.tkvar.get()],
-                                   tablefmt='presto'))
+                    self.msg = 'Inserted Element [' + self.boolVar.get() + "] @ Index [" + self.indexEntry.get() + "] in " + self.tkvar.get()
+
+                print(Console.bold + Console.cyan + '-------------------------------------------------------' + Console.end)
+                print(Console.green + Console.bold + self.msg + Console.end)
+                print(Console.bold + Console.cyan + '-------------------------------------------------------' + Console.end)
 
                 self.master.destroy()
                 self.master.quit()
@@ -589,8 +598,8 @@ class VisualArray:
                 self.arrayHub(root)
                 root.mainloop()
 
+            # Display an error window if the entered element/index cannot be added into the array.
             except ValueError:
-                # Display an error window if the entered element/index cannot be added into the array.
                 self._valErrorWindow = tk.Tk()
 
                 self._frame = tk.Frame(self._valErrorWindow, bg='indianred3')
@@ -615,8 +624,8 @@ class VisualArray:
                 self._valErrorWindow.bind('<Return>', lambda cmd: self._valErrorWindow.destroy())
                 self._valErrorWindow.mainloop()
 
+            # Display an error window if the index specified by the user is invalid.
             except IndexError:
-                # Display an error window if the index specified by the user is invalid.
                 self._indexErrorWindow = tk.Tk()
 
                 self._frame = tk.Frame(self._indexErrorWindow, bg='indianred3')
@@ -661,7 +670,7 @@ class VisualArray:
             self.elementBox = tk.OptionMenu(self.alpha, self.boolVar, *self.options2)
             self.elementBox.pack(fill=tk.BOTH, padx=20)
 
-        # If the dimension isn't 1, then a drop-down menu will be presented to the user to selected which dimension to enter element in.
+        # If the dimension isn't 1, then a drop-down menu will be presented to the user to select which dimension to insert element in.
         if self.get_NumDimensions() != 1:
             self.alpha.after(1, self.alpha.minsize(400, 400))
             self.tkvar = tk.StringVar()
@@ -670,7 +679,7 @@ class VisualArray:
             while x < int(self.get_NumDimensions()):
                 x += 1
                 self.options.append(str('Dimension [' + str(x) + "]"))
-            self.label2 = tk.Label(self.alpha, text='Select Dimension: ', bg='gray28', fg='white', font='HELVETICA 20 bold', )
+            self.label2 = tk.Label(self.alpha, text='Select Dimension: ', bg='gray28', fg='white', font='HELVETICA 20 bold')
             self.label2.pack(fill=tk.X, padx=20, pady=20)
 
             self.tkvar = tk.StringVar(self.alpha)
@@ -697,29 +706,26 @@ class VisualArray:
             try:
                 # When an element is deleted, it's index value sets the element back to it's 'null' or default value when the array was first initialized.
                 self.nullConv = {'Integer': 0, 'Float': 0.0, 'Boolean': 1, 'String': "''"}
+                self.msg = None
                 if self.get_NumDimensions() == 1:
-                    print(tabulate([[]],
-                                   headers=['\nDeleted Element [' + str(self.array[0][int(self.indexDeleteEntry.get())]) + "] @ Index [" + self.indexDeleteEntry.get() + "] in Dimension [1]"],
-                                   tablefmt='presto'))
+                    self.msg = 'Deleted Element [' + str(self.array[0][int(self.indexDeleteEntry.get())]) + "] @ Index [" + self.indexDeleteEntry.get() + "] in Dimension [1]"
                     self.array[0][int(self.indexDeleteEntry.get())] = self.nullConv.get(self.get_DataType())
 
                 elif self.get_NumDimensions() != 1:
                     if self.tkvar.get() == 'Dimension [1]':
-                        print(tabulate([[]],
-                                       headers=['\nDeleted Element [' + str(self.array[0][int(self.indexDeleteEntry.get())]) + "] @ Index [" + self.indexDeleteEntry.get() + "] in" + self.tkvar.get()],
-                                       tablefmt='presto'))
+                        self.msg = 'Deleted Element ['+str(self.array[0][int(self.indexDeleteEntry.get())])+"] @ Index ["+self.indexDeleteEntry.get()+"] in "+self.tkvar.get()
                         self.array[0][int(self.indexDeleteEntry.get())] = self.nullConv.get(self.get_DataType())
 
                     elif self.tkvar.get() == 'Dimension [2]':
-                        print(tabulate([[]],
-                                       headers=['\nDeleted Element [' + str(self.array[1][int(self.indexDeleteEntry.get())]) + "] @ Index [" + self.indexDeleteEntry.get() + "] in" + self.tkvar.get()],
-                                       tablefmt='presto'))
+                        self.msg = 'Deleted Element ['+str(self.array[1][int(self.indexDeleteEntry.get())])+"] @ Index ["+self.indexDeleteEntry.get()+"] in " + self.tkvar.get()
                         self.array[1][int(self.indexDeleteEntry.get())] = self.nullConv.get(self.get_DataType())
                     elif self.tkvar.get() == 'Dimension [3]':
-                        print(tabulate([[]],
-                                       headers=['\nDeleted Element [' + str(self.array[2][int(self.indexDeleteEntry.get())]) + "] @ Index [" + self.indexDeleteEntry.get() + "] in" + self.tkvar.get()],
-                                       tablefmt='presto'))
+                        self.msg = 'Deleted Element ['+str(self.array[2][int(self.indexDeleteEntry.get())])+"] @ Index ["+self.indexDeleteEntry.get()+"] in "+self.tkvar.get()
                         self.array[2][int(self.indexDeleteEntry.get())] = self.nullConv.get(self.get_DataType())
+
+                print(Console.bold + Console.cyan + '-------------------------------------------------------' + Console.end)
+                print(Console.green + Console.bold + self.msg + Console.end)
+                print(Console.bold + Console.cyan + '-------------------------------------------------------' + Console.end)
 
                 self.master.destroy()
                 self.master.quit()
@@ -846,11 +852,14 @@ class VisualArray:
                     self.indexes.append(result[1])
 
                 self.zip = zip(self.indexes, self.dimensions)
+                self._msg = 'Searched for element [' + str(self.indexSearchEntry.get()) + '] within the array.'
 
-                print(tabulate([[]], headers=['\nSearched for element [' + str(self.indexSearchEntry.get()) + '] within the array.'], tablefmt='presto'))
+                print(Console.bold + Console.cyan + '-------------------------------------------------------' + Console.end)
+                print(Console.green + Console.bold + self._msg)
                 print('[Search results below]:')
                 print(tabulate([*self.zip], headers=['Index', 'Dimension'], tablefmt='fancy_grid'))
-                print('Total Occurences: [' +  str(self.x) + "].")
+                print('Total Occurrences: [' + str(self.x) + "]." + Console.end)
+                print(Console.bold + Console.cyan + '-------------------------------------------------------' + Console.end)
 
                 # Close current window and display the search results in new window.
                 self.alpha.destroy()
@@ -928,6 +937,7 @@ class VisualArray:
         self.alpha.resizable(False, False)
         self.alpha.mainloop()
 
+    # Method splits the array depending on split/Axis amount specified by user.
     def split_(self, master):
 
         # Method attempts to split the array with user specified method and split/axis values if applicable.
@@ -1021,13 +1031,14 @@ class VisualArray:
         # ** Please note, this is only a copy of the original array, so closing this window will not affect the original copy of the array. The split result can be exported however.
         def popUp():
             x = _split()
-            print(tabulate([[]], headers=['\nExecuted: ' + str(x[1])], tablefmt='presto'))
+            print(Console.bold + Console.cyan + '-------------------------------------------------------' + Console.end)
+            print(Console.bold + Console.green + "Executed: " + str(x[1]) + " method on array.")
+            print(Console.bold + Console.cyan + 'Axis: ' + str(self._axisVal.get()) + " Split: " + str(self._splitVal.get()))
+            print(Console.bold + Console.cyan + '-------------------------------------------------------' + Console.end)
 
             y = []
-
             for element in x[0]:
                 y.append(element)
-
             z = 0
             for element in y:
                 for elements in list(element):
@@ -1140,42 +1151,28 @@ class VisualArray:
         self.master.bind('<Return>', lambda cmd: popUp())
         self.master.mainloop()
 
-    # Getter.
-    def get_NumDimensions(self):
-        return self.numDimensions
+    # Getter methods.
+    def get_NumDimensions(self): return self.numDimensions
 
-    # Getter.
-    def get_DataType(self):
-        return self.dataType
+    def get_DataType(self): return self.dataType
 
-    # Getter.
-    def get_Array(self):
-        return self.array
+    def get_Array(self): return self.array
 
-    # Getter.
-    def get_NumElements(self):
-        return self.numElements
+    def get_NumElements(self): return self.numElements
 
-    # Setter.
-    def set_NumDimensions(self, val):
-        self.numDimensions = val
+    # Setter methods.
+    def set_NumDimensions(self, val): self.numDimensions = val
 
-    # Setter.
-    def set_DataType(self, val):
-        self.dataType = val
+    def set_DataType(self, val): self.dataType = val
 
-    # Setter.
-    def set_NumElements(self, val):
-        self.numElements = val
+    def set_NumElements(self, val): self.numElements = val
 
 
 def main():
-    # Initialize Visual Array object by passing in a tkinter (Tk()) window into the constructor.
     master = tk.Tk()
     visualArray = VisualArray(master)
     master.mainloop()
 
 
-# Execute program. 
 if __name__ == '__main__':
     main()
