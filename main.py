@@ -225,15 +225,15 @@ class VisualArray:
 
                 # Added in quotation marks around empty strings, to prevent blank list boxes when String data type is selected.
                 # (Done so, for visual appeal.)
-                self.x = 0
-                while self.x < self.get_NumElements():
-                    self.array[0][self.x] = "''"
+                self._x = 0
+                while self._x < self.get_NumElements():
+                    self.array[0][self._x] = "''"
                     if self.get_NumDimensions() == 2:
-                        self.array[1][self.x] = "''"
+                        self.array[1][self._x] = "''"
                     elif self.get_NumDimensions() == 3:
-                        self.array[1][self.x] = "''"
-                        self.array[2][self.x] = "''"
-                    self.x += 1
+                        self.array[1][self._x] = "''"
+                        self.array[2][self._x] = "''"
+                    self._x += 1
 
             # Log into the console the array's contents; For testing/debugging purposes.
             print(Console.blue + Console.bold + 'New array initialized with attributes:' + Console.end + Console.magenta + Console.bold)
@@ -242,15 +242,15 @@ class VisualArray:
                            tablefmt='fancy_grid') + '\n' + Console.end)
 
             print(Console.blue + Console.bold + 'Array Contents:' + Console.end + Console.magenta + Console.bold)
-            self.temp1 = []  # Holds number of dimensions.
-            self.temp2 = []  # Holds contents of each dimension.
-            self.dimCount = 0
+            self._temp1 = []  # Holds number of dimensions.
+            self._temp2 = []  # Holds contents of each dimension.
+            self._dimCount = 0
             for element in self.array:
-                self.dimCount += 1
-                self.temp1.insert(self.dimCount-1, 'Dimension [{0}]'.format(str(self.dimCount)))
-                self.temp2.append(list(element))
+                self._dimCount += 1
+                self._temp1.insert(self._dimCount-1, 'Dimension [{0}]'.format(str(self._dimCount)))
+                self._temp2.append(list(element))
 
-            print(tabulate([self.temp2], headers=[*self.temp1], tablefmt='fancy_grid') + Console.end)
+            print(tabulate([self._temp2], headers=[*self._temp1], tablefmt='fancy_grid') + Console.end)
             print(Console.bold + Console.green + '-------------------------------------------------------' + Console.end)
             print(Console.yellow + Console.bold + 'Please See Array Hub window.' + Console.end)
             print(Console.bold + Console.green + '-------------------------------------------------------' + Console.end)
@@ -310,46 +310,50 @@ class VisualArray:
                 self.search(root)
             elif tag == 4:
                 self.split_(root)
+            elif tag == 5:
+                self.sort_(root)
+            elif tag == 6:
+                self.filter_(root)
             root.mainloop()
 
         # Update label in arrayHub that shows the selected list element for the user.
         def updateSelection(tag):
             # Bunch of if/else statements to ensure that the address for the selectionLabel for the selected element is coming from the right listbox/dimension.
             if tag == 3 and self._listBox['bg'] == 'azure':
-                self.selection = self._listBox.curselection()
-                self.msg2 = 'Selected: array[0]' + str(list(self.selection))
+                self._selection = self._listBox.curselection()
+                self._msg = 'Selected: array[0]' + str(list(self._selection))
             elif tag == 3 and self._listBox2['bg'] == 'azure':
-                self.selection = self._listBox2.curselection()
-                self.msg2 = 'Selected: array[1]' + str(list(self.selection))
+                self._selection = self._listBox2.curselection()
+                self._msg = 'Selected: array[1]' + str(list(self._selection))
             elif tag == 3 and self._listBox3['bg'] == 'azure':
-                self.selection = self._listBox3.curselection()
-                self.msg2 = 'Selected: array[2]' + str(list(self.selection))
+                self._selection = self._listBox3.curselection()
+                self._msg = 'Selected: array[2]' + str(list(self._selection))
             elif tag == 2 and self._listBox['bg'] == 'azure':
-                self.selection = self._listBox.curselection()
-                self.msg2 = 'Selected: array[0]' + str(list(self.selection))
+                self._selection = self._listBox.curselection()
+                self._msg = 'Selected: array[0]' + str(list(self._selection))
             elif tag == 2 and self._listBox2['bg'] == 'azure':
-                self.selection = self._listBox2.curselection()
-                self.msg2 = 'Selected: array[1]' + str(list(self.selection))
+                self._selection = self._listBox2.curselection()
+                self._msg = 'Selected: array[1]' + str(list(self._selection))
             elif tag == 2 and self._listBox3['bg'] == 'azure':
-                self.selection = self._listBox3.curselection()
-                self.msg2 = 'Selected: array[2]' + str(list(self.selection))
+                self._selection = self._listBox3.curselection()
+                self._msg = 'Selected: array[2]' + str(list(self._selection))
             elif tag == 1 and self._listBox['bg'] == 'azure':
                 if self.get_NumDimensions() != 1:
-                    self.selection = self._listBox.curselection()
-                    self.msg2 = 'Selected: array[0]' + str(list(self.selection))
+                    self._selection = self._listBox.curselection()
+                    self._msg = 'Selected: array[0]' + str(list(self._selection))
                 else:
-                    self.selection = self._listBox.curselection()
-                    self.msg2 = 'Selected: array' + str(list(self.selection))
+                    self._selection = self._listBox.curselection()
+                    self._msg = 'Selected: array' + str(list(self._selection))
             elif tag == 1 and self._listBox2['bg'] == 'azure':
-                self.selection = self._listBox2.curselection()
-                self.msg2 = 'Selected: array[1]' + str(list(self.selection))
+                self._selection = self._listBox2.curselection()
+                self._msg = 'Selected: array[1]' + str(list(self._selection))
             elif tag == 1 and self._listBox3['bg'] == 'azure':
-                self.selection = self._listBox3.curselection()
-                self.msg2 = 'Selected: array[2]' + str(list(self.selection))
+                self._selection = self._listBox3.curselection()
+                self._msg = 'Selected: array[2]' + str(list(self._selection))
 
             # Update the label and the window.
-            self.selectionLabel.config(text=self.msg2)
-            self.master.after(1, self.selectionLabel.update())
+            self._selectionLabel.config(text=self._msg)
+            self.master.after(1, self._selectionLabel.update())
 
         # Method makes a call to updateSelection() to update the selectionLabel with the selected element from listbox 1,2 or 3.
         def tagger(tag):
@@ -438,7 +442,7 @@ class VisualArray:
             self._listBox.pack(fill=tk.BOTH, expand=True)
 
             # Specified label output needs to be altered slightly depending on the dimensions of the array.
-            self.msg2 = "You selected: array[" + str(list(self.array.flatten()).index(conv(self.get_DataType()))) + "]"
+            self._msg = "You selected: array[" + str(list(self.array.flatten()).index(conv(self.get_DataType()))) + "]"
 
         elif self.get_NumDimensions() == 2:
             for element in self.array[0]:
@@ -450,7 +454,7 @@ class VisualArray:
             self._listBox.pack(side=tk.LEFT, expand=True, fill=tk.BOTH)
             self._listBox2.pack(side=tk.RIGHT, expand=True, fill=tk.BOTH)
 
-            self.msg2 = "You selected: array[0][" + str(list(self.array.flatten()).index(conv(self.get_DataType()))) + "]"
+            self._msg = "You selected: array[0][" + str(list(self.array.flatten()).index(conv(self.get_DataType()))) + "]"
 
         else:
             for element in self.array[0]: self._listBox.insert(tk.END, element)
@@ -462,14 +466,14 @@ class VisualArray:
             self._listBox2.grid(row=1, column=1, sticky='nsew', columnspan=1)
             self._listBox3.grid(row=1, column=2, sticky='nsew', columnspan=1)
 
-        self.msg2 = "You selected: array[0][" + str(list(self.array.flatten()).index(conv(self.get_DataType()))) + "]"
+        self._msg = "You selected: array[0][" + str(list(self.array.flatten()).index(conv(self.get_DataType()))) + "]"
 
         self._arrayFrame.pack(fill=tk.BOTH, padx=20, expand=True, pady=5)
 
         # Draw and pack in the selection label; This label shows the user the selected index of the element from within the listBoxes.
-        self.selectionLabel = tk.Label(self._frame, text=self.msg2, font='HELVETICA 14 bold', bg='gray99', fg='black', justify='center')
-        self.selectionLabel.config(borderwidth=2, relief='solid', highlightbackground='gray25', highlightthickness=2, highlightcolor='gray25')
-        self.selectionLabel.pack(fill=tk.BOTH, padx=20, pady=5, expand=True)
+        self._selectionLabel = tk.Label(self._frame, text=self._msg, font='HELVETICA 14 bold', bg='gray99', fg='black', justify='center')
+        self._selectionLabel.config(borderwidth=2, relief='solid', highlightbackground='gray25', highlightthickness=2, highlightcolor='gray25')
+        self._selectionLabel.pack(fill=tk.BOTH, padx=20, pady=5, expand=True)
 
         # Frame containing buttons with methods to perform on the given array.
         self._methodsFrame = tk.Frame(self._frame, bg='indianred3', relief='solid', borderwidth=2, highlightbackground='gray25', highlightthickness=2, highlightcolor='gray25')
@@ -554,42 +558,58 @@ class VisualArray:
 
         def add():
             try:
-                self.msg = None
+                self._msg = None
                 if self.get_DataType() != 'Boolean':
-                    self.temp = ("'" + str(self.elementEntry.get()) + "'") if self.get_DataType() == 'String' else str(self.elementEntry.get())
+                    if self.get_DataType() == 'String':
+                        self._temp = "'" + str(self._elementEntry.get()) + "'"
+                    elif self.get_DataType() == 'Integer':
+                        self._temp = int(self._elementEntry.get())
 
                     if self.get_NumDimensions() == 1:
-                        # For visual appeal, we will include the quotation marks around inputted string elements to depict string elements.
-                        self.array[0][int(self.indexEntry.get())] = self.temp
-                        self.msg = 'Inserted Element [' + self.elementEntry.get() + "] @ Index [" + self.indexEntry.get() + "] in Dimension [1]"
+                        # Had to perform an extra check for the float data type because was having trouble entering it into the listbox initially.
+                        # Was having trouble inserting a float, but every other data type was working. Special case must be added for the float and the string data types. 
+                        if self.get_DataType() == 'Float':
+                            self.array[0][int(self.indexEntry.get())] = self._elementEntry.get()
+                        else:
+                            self.array[0][int(self.indexEntry.get())] = self._temp
+
+                        self._msg = 'Inserted Element [' + self._elementEntry.get() + "] @ Index [" + self.indexEntry.get() + "] in Dimension [1]"
 
                     elif self.get_NumDimensions() == 2 or 3:
-                        self.temp = ("'" + str(self.elementEntry.get()) + "'") if self.get_DataType() == 'String' else str(self.elementEntry.get())
-                        if self.tkvar.get() == 'Dimension [1]':
-                            self.array[0][int(self.indexEntry.get())] = self.temp
-                        elif self.tkvar.get() == 'Dimension [2]':
-                            self.array[1][int(self.indexEntry.get())] = self.temp
-                        if self.tkvar.get() == 'Dimension [3]':
-                            self.array[2][int(self.indexEntry.get())] = self.temp
-                        self.msg = 'Inserted Element [' + self.elementEntry.get() + "] @ Index [" + self.indexEntry.get() + "] in " + self.tkvar.get()
+                        if self._tkvar.get() == 'Dimension [1]':
+                            if self.get_DataType() == 'Float':
+                                self.array[0][int(self.indexEntry.get())] = self._elementEntry.get()
+                            else:
+                                self.array[0][int(self.indexEntry.get())] = self._temp
+                        elif self._tkvar.get() == 'Dimension [2]':
+                            if self.get_DataType() == 'Float':
+                                self.array[1][int(self.indexEntry.get())] = self._elementEntry.get()
+                            else:
+                                self.array[1][int(self.indexEntry.get())] = self._temp
+                        if self._tkvar.get() == 'Dimension [3]':
+                            if self.get_DataType() == 'Float':
+                                self.array[2][int(self.indexEntry.get())] = self._elementEntry.get()
+                            else:
+                                self.array[2][int(self.indexEntry.get())] = self._temp
+                        self._msg = 'Inserted Element [' + self._elementEntry.get() + "] @ Index [" + self.indexEntry.get() + "] in " + self._tkvar.get()
 
                 else:
                     self.boolConv = {"True": 1, "False": 0}
                     if self.get_NumDimensions() == 1:
-                        self.array[0][int(self.indexEntry.get())] = self.boolConv.get(self.boolVar.get())
-                        self.msg = 'Inserted Element [' + self.boolVar.get() + "] @ Index [" + self.indexEntry.get() + "] in Dimension [1]"
+                        self.array[0][int(self.indexEntry.get())] = self.boolConv.get(self._boolVar.get())
+                        self._msg = 'Inserted Element [' + self._boolVar.get() + "] @ Index [" + self.indexEntry.get() + "] in Dimension [1]"
                     elif self.get_NumDimensions() == 2 or 3:
-                        if self.tkvar.get() == 'Dimension [1]':
-                            self.array[0][int(self.indexEntry.get())] = self.boolConv.get(self.boolVar.get())
-                        elif self.tkvar.get() == 'Dimension [2]':
-                            self.array[1][int(self.indexEntry.get())] = self.boolConv.get(self.boolVar.get())
-                        if self.tkvar.get() == 'Dimension [3]':
-                            self.array[2][int(self.indexEntry.get())] = self.boolConv.get(self.boolVar.get())
+                        if self._tkvar.get() == 'Dimension [1]':
+                            self.array[0][int(self.indexEntry.get())] = self.boolConv.get(self._boolVar.get())
+                        elif self._tkvar.get() == 'Dimension [2]':
+                            self.array[1][int(self.indexEntry.get())] = self.boolConv.get(self._boolVar.get())
+                        if self._tkvar.get() == 'Dimension [3]':
+                            self.array[2][int(self.indexEntry.get())] = self.boolConv.get(self._boolVar.get())
 
-                    self.msg = 'Inserted Element [' + self.boolVar.get() + "] @ Index [" + self.indexEntry.get() + "] in " + self.tkvar.get()
+                    self._msg = 'Inserted Element [' + self._boolVar.get() + "] @ Index [" + self.indexEntry.get() + "] in " + self._tkvar.get()
 
                 print(Console.bold + Console.cyan + '-------------------------------------------------------' + Console.end)
-                print(Console.green + Console.bold + self.msg + Console.end)
+                print(Console.green + Console.bold + self._msg + Console.end)
                 print(Console.bold + Console.cyan + '-------------------------------------------------------' + Console.end)
 
                 self.master.destroy()
@@ -599,7 +619,10 @@ class VisualArray:
                 root.mainloop()
 
             # Display an error window if the entered element/index cannot be added into the array.
-            except ValueError:
+            except ValueError as VE:
+
+                print(VE)
+
                 self._valErrorWindow = tk.Tk()
 
                 self._frame = tk.Frame(self._valErrorWindow, bg='indianred3')
@@ -654,40 +677,40 @@ class VisualArray:
 
         self.alpha = master
 
-        self.label1 = tk.Label(self.alpha, text='Insert Element:', bg='gray28', fg='white', font='HELVETICA 20 bold')
-        self.label1.pack(fill=tk.X, padx=20, pady=20)
+        self._label1 = tk.Label(self.alpha, text='Insert Element:', bg='gray28', fg='white', font='HELVETICA 20 bold')
+        self._label1.pack(fill=tk.X, padx=20, pady=20)
 
         # If the data type selected is boolean, than the user may only pick from the True/False options from drop-down box for the element.
         if self.get_DataType() != 'Boolean':
-            self.elementEntry = tk.Entry(self.alpha, font='HELVETICA 24 bold', justify='center', textvariable=self.element)
-            self.elementEntry.pack(fill=tk.X, padx=20)
-            self.elementEntry.focus()
+            self._elementEntry = tk.Entry(self.alpha, font='HELVETICA 24 bold', justify='center', textvariable=self.element)
+            self._elementEntry.pack(fill=tk.X, padx=20)
+            self._elementEntry.focus()
 
         else:
-            self.boolVar = tk.StringVar(self.alpha)
-            self.options2 = ['True', 'False']
-            self.boolVar.set(self.options2[0])
-            self.elementBox = tk.OptionMenu(self.alpha, self.boolVar, *self.options2)
-            self.elementBox.pack(fill=tk.BOTH, padx=20)
+            self._boolVar = tk.StringVar(self.alpha)
+            self._options = ['True', 'False']
+            self._boolVar.set(self._options[0])
+            self._elementBox = tk.OptionMenu(self.alpha, self._boolVar, *self._options)
+            self._elementBox.pack(fill=tk.BOTH, padx=20)
 
         # If the dimension isn't 1, then a drop-down menu will be presented to the user to select which dimension to insert element in.
         if self.get_NumDimensions() != 1:
             self.alpha.after(1, self.alpha.minsize(400, 400))
-            self.tkvar = tk.StringVar()
-            self.options = []
+            self._tkvar = tk.StringVar()
+            self._options = []
             x = 0
             while x < int(self.get_NumDimensions()):
                 x += 1
-                self.options.append(str('Dimension [' + str(x) + "]"))
-            self.label2 = tk.Label(self.alpha, text='Select Dimension: ', bg='gray28', fg='white', font='HELVETICA 20 bold')
-            self.label2.pack(fill=tk.X, padx=20, pady=20)
+                self._options.append(str('Dimension [' + str(x) + "]"))
+            self._label2 = tk.Label(self.alpha, text='Select Dimension: ', bg='gray28', fg='white', font='HELVETICA 20 bold')
+            self._label2.pack(fill=tk.X, padx=20, pady=20)
 
-            self.tkvar = tk.StringVar(self.alpha)
-            self.tkvar.set(self.options[0])
-            self.dimensionBox = tk.OptionMenu(self.alpha, self.tkvar, *self.options).pack(fill=tk.BOTH, padx=20)
+            self._tkvar = tk.StringVar(self.alpha)
+            self._tkvar.set(self._options[0])
+            self._dimensionBox = tk.OptionMenu(self.alpha, self._tkvar, *self._options).pack(fill=tk.BOTH, padx=20)
 
-        self.label3 = tk.Label(self.alpha, text='@ Index: ', bg='gray28', fg='white', font='HELVETICA 20 bold', )
-        self.label3.pack(fill=tk.X, padx=20, pady=20)
+        self._label3 = tk.Label(self.alpha, text='@ Index: ', bg='gray28', fg='white', font='HELVETICA 20 bold', )
+        self._label3.pack(fill=tk.X, padx=20, pady=20)
         self.indexEntry = tk.Entry(self.alpha, font='HELVETICA 24 bold', justify='center', textvariable=self.index)
         self.indexEntry.pack(fill=tk.X, padx=20)
         self._insertButton = tk.Button(self.alpha, text='INSERT', font='HELVETICA 24 bold', command=lambda: add())
@@ -708,20 +731,20 @@ class VisualArray:
                 self.nullConv = {'Integer': 0, 'Float': 0.0, 'Boolean': 1, 'String': "''"}
                 self.msg = None
                 if self.get_NumDimensions() == 1:
-                    self.msg = 'Deleted Element [' + str(self.array[0][int(self.indexDeleteEntry.get())]) + "] @ Index [" + self.indexDeleteEntry.get() + "] in Dimension [1]"
-                    self.array[0][int(self.indexDeleteEntry.get())] = self.nullConv.get(self.get_DataType())
+                    self.msg = 'Deleted Element [' + str(self.array[0][int(self._indexDeleteEntry.get())]) + "] @ Index [" + self._indexDeleteEntry.get() + "] in Dimension [1]"
+                    self.array[0][int(self._indexDeleteEntry.get())] = self.nullConv.get(self.get_DataType())
 
                 elif self.get_NumDimensions() != 1:
-                    if self.tkvar.get() == 'Dimension [1]':
-                        self.msg = 'Deleted Element ['+str(self.array[0][int(self.indexDeleteEntry.get())])+"] @ Index ["+self.indexDeleteEntry.get()+"] in "+self.tkvar.get()
-                        self.array[0][int(self.indexDeleteEntry.get())] = self.nullConv.get(self.get_DataType())
+                    if self._tkvar.get() == 'Dimension [1]':
+                        self.msg = 'Deleted Element ['+str(self.array[0][int(self._indexDeleteEntry.get())])+"] @ Index ["+self._indexDeleteEntry.get()+"] in "+self._tkvar.get()
+                        self.array[0][int(self._indexDeleteEntry.get())] = self.nullConv.get(self.get_DataType())
 
-                    elif self.tkvar.get() == 'Dimension [2]':
-                        self.msg = 'Deleted Element ['+str(self.array[1][int(self.indexDeleteEntry.get())])+"] @ Index ["+self.indexDeleteEntry.get()+"] in " + self.tkvar.get()
-                        self.array[1][int(self.indexDeleteEntry.get())] = self.nullConv.get(self.get_DataType())
-                    elif self.tkvar.get() == 'Dimension [3]':
-                        self.msg = 'Deleted Element ['+str(self.array[2][int(self.indexDeleteEntry.get())])+"] @ Index ["+self.indexDeleteEntry.get()+"] in "+self.tkvar.get()
-                        self.array[2][int(self.indexDeleteEntry.get())] = self.nullConv.get(self.get_DataType())
+                    elif self._tkvar.get() == 'Dimension [2]':
+                        self.msg = 'Deleted Element ['+str(self.array[1][int(self._indexDeleteEntry.get())])+"] @ Index ["+self._indexDeleteEntry.get()+"] in " + self._tkvar.get()
+                        self.array[1][int(self._indexDeleteEntry.get())] = self.nullConv.get(self.get_DataType())
+                    elif self._tkvar.get() == 'Dimension [3]':
+                        self.msg = 'Deleted Element ['+str(self.array[2][int(self._indexDeleteEntry.get())])+"] @ Index ["+self._indexDeleteEntry.get()+"] in "+self._tkvar.get()
+                        self.array[2][int(self._indexDeleteEntry.get())] = self.nullConv.get(self.get_DataType())
 
                 print(Console.bold + Console.cyan + '-------------------------------------------------------' + Console.end)
                 print(Console.green + Console.bold + self.msg + Console.end)
@@ -736,9 +759,9 @@ class VisualArray:
             except IndexError:
                 self.indexError_Window = tk.Tk()
 
-                self.label10 = tk.Label(self.indexError_Window, text='Invalid index specified. Either the index you\nentered was out of bounds, or does not exist')
-                self.label10.config(bg='indianred', fg='white', font='HELVETICA 14 bold')
-                self.label10.pack(fill=tk.X, padx=30, pady=(25, 10))
+                self._label10 = tk.Label(self.indexError_Window, text='Invalid index specified. Either the index you\nentered was out of bounds, or does not exist')
+                self._label10.config(bg='indianred', fg='white', font='HELVETICA 14 bold')
+                self._label10.pack(fill=tk.X, padx=30, pady=(25, 10))
 
                 self.closeButton = tk.Button(self.indexError_Window, text='CLOSE', font='HELVETICA 24 bold', command=lambda: self.indexError_Window.destroy())
                 self.closeButton.pack(fill=tk.X, padx=20, pady=(10, 0))
@@ -757,9 +780,9 @@ class VisualArray:
                 self.label9 = tk.Label(self._valErrorWindow, text='You have entered an index value\nthat cannot be removed from the array.')
                 self.label9.config(bg='indianred', fg='white', font='HELVETICA 14 bold')
                 self.label9.pack(fill=tk.X, padx=30, pady=(25, 10))
-                self.label10 = tk.Label(self._valErrorWindow, text='Please try a different value again.')
-                self.label10.config(bg='indianred', fg='white', font='HELVETICA 14 bold')
-                self.label10.pack(fill=tk.X, padx=30)
+                self._label10 = tk.Label(self._valErrorWindow, text='Please try a different value again.')
+                self._label10.config(bg='indianred', fg='white', font='HELVETICA 14 bold')
+                self._label10.pack(fill=tk.X, padx=30)
 
                 self.closeButton = tk.Button(self._valErrorWindow, text='CLOSE', font='HELVETICA 24 bold', command=lambda: self._valErrorWindow.destroy())
                 self.closeButton.pack(fill=tk.X, padx=20, pady=(10, 0))
@@ -777,28 +800,28 @@ class VisualArray:
         # String variable holds the index to be deleted.
         self.index = tk.StringVar()
 
-        self.label1 = tk.Label(self.alpha, text='Delete Index:', bg='gray28', fg='white', font='HELVETICA 20 bold')
-        self.label1.pack(fill=tk.X, padx=20, pady=20)
-        self.indexDeleteEntry = tk.Entry(self.alpha, font='HELVETICA 24 bold', justify='center')
-        self.indexDeleteEntry.pack(fill=tk.X, padx=20)
-        self.indexDeleteEntry.focus()
+        self._label1 = tk.Label(self.alpha, text='Delete Index:', bg='gray28', fg='white', font='HELVETICA 20 bold')
+        self._label1.pack(fill=tk.X, padx=20, pady=20)
+        self._indexDeleteEntry = tk.Entry(self.alpha, font='HELVETICA 24 bold', justify='center')
+        self._indexDeleteEntry.pack(fill=tk.X, padx=20)
+        self._indexDeleteEntry.focus()
 
         # If more than one dimension is present, than a drop-down menu must be presented to the user to specify which dimension to delete element from.
         if self.get_NumDimensions() != 1:
             self.alpha.geometry('400x280')
             self.alpha.minsize(400, 280)
-            self.tkvar = tk.StringVar()
-            self.options = []
-            x = 0
-            while x < int(self.get_NumDimensions()):
-                x += 1
-                self.options.append(str('Dimension [' + str(x) + "]"))
-            self.label2 = tk.Label(self.alpha, text='Select Dimension: ', bg='gray28', fg='white', font='HELVETICA 20 bold', )
-            self.label2.pack(fill=tk.X, padx=20, pady=20)
+            self._tkvar = tk.StringVar()
+            self._options = []
+            self._x = 0
+            while self._x < int(self.get_NumDimensions()):
+                self._x += 1
+                self._options.append(str('Dimension [' + str(self._x) + "]"))
+            self._label2 = tk.Label(self.alpha, text='Select Dimension: ', bg='gray28', fg='white', font='HELVETICA 20 bold', )
+            self._label2.pack(fill=tk.X, padx=20, pady=20)
 
-            self.tkvar = tk.StringVar(self.alpha)
-            self.tkvar.set(self.options[0])
-            self.dimensionBox = tk.OptionMenu(self.alpha, self.tkvar, *self.options).pack(fill=tk.BOTH, padx=20)
+            self._tkvar = tk.StringVar(self.alpha)
+            self._tkvar.set(self._options[0])
+            self._dimensionBox = tk.OptionMenu(self.alpha, self._tkvar, *self._options).pack(fill=tk.BOTH, padx=20)
 
         else:
             self.alpha.geometry('400x200')
@@ -820,110 +843,110 @@ class VisualArray:
         def find():
 
             def searchAgainBind():
-                self.displaySearch_Window.destroy()
+                self._displaySearchWindow.destroy()
                 root = tk.Tk()
                 self.search(root)
                 root.mainloop()
 
             try:
                 if self.get_DataType() == 'Boolean':
-                    self.searchedIndex = np.where(self.array == bool(self.indexSearchEntry.get()))
+                    self.searchedIndex = np.where(self.array == bool(self._indexSearchEntry.get()))
                 elif self.get_DataType() == 'String':
-                    self.searchedIndex = np.where(self.array == "'" + str(self.indexSearchEntry.get()) + "'")
+                    self.searchedIndex = np.where(self.array == "'" + str(self._indexSearchEntry.get()) + "'")
                 elif self.get_DataType() == 'Float':
-                    self.searchedIndex = np.where(self.array == float(self.indexSearchEntry.get()))
+                    self.searchedIndex = np.where(self.array == float(self._indexSearchEntry.get()))
                 elif self.get_DataType() == 'Integer':
-                    self.searchedIndex = np.where(self.array == int(self.indexSearchEntry.get()))
+                    self.searchedIndex = np.where(self.array == int(self._indexSearchEntry.get()))
 
-                self.searchedElement = self.indexSearchEntry.get()
+                self._searchedElement = self._indexSearchEntry.get()
 
                 # Output to console the search message.
 
-                self.searchZip = list(zip(self.searchedIndex[0], self.searchedIndex[1]))
-                self.x = 0
-                self.dimensions = []
-                self.indexes = []
+                self._searchZip = list(zip(self.searchedIndex[0], self.searchedIndex[1]))
+                self._x = 0
+                self._dimensions = []
+                self._indexes = []
 
                 # Iterate through search results and add the index and dimension to their own respective lists to be printed back to the user.
                 # We need to alter the dimension that is returned, by adding 1 so that dimension 1 is 1 not 0. (Due to python indexing by zero)
-                for result in self.searchZip:
-                    self.x += 1
-                    self.dimensions.append(result[0] + 1)
-                    self.indexes.append(result[1])
+                for result in self._searchZip:
+                    self._x += 1
+                    self._dimensions.append(result[0] + 1)
+                    self._indexes.append(result[1])
 
-                self.zip = zip(self.indexes, self.dimensions)
-                self._msg = 'Searched for element [' + str(self.indexSearchEntry.get()) + '] within the array.'
+                self._zip = zip(self._indexes, self._dimensions)
+                self._msg = 'Searched for element [' + str(self._indexSearchEntry.get()) + '] within the array.'
 
                 print(Console.bold + Console.cyan + '-------------------------------------------------------' + Console.end)
                 print(Console.green + Console.bold + self._msg)
                 print('[Search results below]:')
-                print(tabulate([*self.zip], headers=['Index', 'Dimension'], tablefmt='fancy_grid'))
-                print('Total Occurrences: [' + str(self.x) + "]." + Console.end)
+                print(tabulate([*self._zip], headers=['Index', 'Dimension'], tablefmt='fancy_grid'))
+                print('Total Occurrences: [' + str(self._x) + "]." + Console.end)
                 print(Console.bold + Console.cyan + '-------------------------------------------------------' + Console.end)
 
                 # Close current window and display the search results in new window.
                 self.alpha.destroy()
 
-                self.displaySearch_Window = tk.Tk()
+                self._displaySearchWindow = tk.Tk()
 
-                self.label1 = tk.Label(self.displaySearch_Window, text='Search results for Element [' + str(self.searchedElement) + "]: ")
-                self.label1.pack(fill=tk.BOTH, padx=10, pady=10, expand=True)
+                self._label1 = tk.Label(self._displaySearchWindow, text='Search results for Element [' + str(self._searchedElement) + "]: ")
+                self._label1.pack(fill=tk.BOTH, padx=10, pady=10, expand=True)
 
-                self.resultBox = tk.Listbox(self.displaySearch_Window, justify='center', font='VERDANA 26 bold', selectborderwidth=1, bg='bisque')
+                self._resultBox = tk.Listbox(self._displaySearchWindow, justify='center', font='VERDANA 26 bold', selectborderwidth=1, bg='bisque')
 
-                self.y = 0
+                self._y = 0
                 if self.get_NumDimensions() == 1:
-                    for result in self.indexes:
-                        self.resultBox.insert(tk.END, 'array[' + str(result) + "]")
+                    for result in self._indexes:
+                        self._resultBox.insert(tk.END, 'array[' + str(result) + "]")
                 else:
-                    for result in self.dimensions:
-                        self.resultBox.insert(tk.END, 'array[' + str(result-1) + "][" + str(self.indexes[self.y]) + "]")
-                        self.y += 1
+                    for result in self._dimensions:
+                        self._resultBox.insert(tk.END, 'array[' + str(result-1) + "][" + str(self._indexes[self._y]) + "]")
+                        self._y += 1
 
-                self.resultBox.select_set(0)
+                self._resultBox.select_set(0)
 
-                self.resultBox.pack(fill=tk.BOTH, padx=10, pady=10, expand=True)
+                self._resultBox.pack(fill=tk.BOTH, padx=10, pady=10, expand=True)
 
-                self._bottomFrame = tk.Frame(self.displaySearch_Window, bg='indianred')
-                self.searchAgainButton = tk.Button(self._bottomFrame, text='NEW SEARCH', font='HELVETICA 24 bold', width=10, command=lambda: searchAgainBind())
-                self.searchAgainButton.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-                self.doneButton = tk.Button(self._bottomFrame, text='DONE', font='HELVETICA 24 bold', width=10, command=lambda: self.displaySearch_Window.destroy())
-                self.doneButton.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
+                self._bottomFrame = tk.Frame(self._displaySearchWindow, bg='indianred')
+                self._searchAgainButton = tk.Button(self._bottomFrame, text='NEW SEARCH', font='HELVETICA 24 bold', width=10, command=lambda: searchAgainBind())
+                self._searchAgainButton.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+                self._doneButton = tk.Button(self._bottomFrame, text='DONE', font='HELVETICA 24 bold', width=10, command=lambda: self._displaySearchWindow.destroy())
+                self._doneButton.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
                 self._bottomFrame.pack(fill=tk.BOTH, padx=10, pady=10)
 
-                self.displaySearch_Window.title('Search Complete')
-                self.displaySearch_Window.minsize(400, 225)
-                self.displaySearch_Window.config(bg='indianred')
-                self.displaySearch_Window.resizable(False, False)
-                self.displaySearch_Window.mainloop()
+                self._displaySearchWindow.title('Search Complete')
+                self._displaySearchWindow.minsize(400, 225)
+                self._displaySearchWindow.config(bg='indianred')
+                self._displaySearchWindow.resizable(False, False)
+                self._displaySearchWindow.mainloop()
 
             except ValueError:
-                self.ValueError_Window = tk.Tk()
-                self.label14 = tk.Label(self.ValueError_Window, text='Could not locate the element:')
-                self.label14.config(bg='indianred', fg='white', font='HELVETICA 22 bold')
-                self.label14.pack(fill=tk.X, padx=10, pady=(20, 0))
-                self.label15 = tk.Label(self.ValueError_Window, text='[' + str(self.indexSearchEntry.get()) + ']')
-                self.label15.config(bg='gray24', fg='thistle', font='HELVETICA 20 bold')
-                self.label15.pack(fill=tk.X, padx=25, pady=10)
-                self.label16 = tk.Label(self.ValueError_Window, text='within the specified array.')
-                self.label16.config(bg='indianred', fg='white', font='HELVETICA 20 bold')
-                self.label16.pack(fill=tk.X, padx=10)
-                self.closeButton = tk.Button(self.ValueError_Window, text='CLOSE', width=20, font='HELVETICA 22 bold', command=lambda: self.ValueError_Window.destroy())
+                self._valueErrorWindow = tk.Tk()
+                self._label1 = tk.Label(self._valueErrorWindow, text='Could not locate the element:')
+                self._label1.config(bg='indianred', fg='white', font='HELVETICA 22 bold')
+                self._label1.pack(fill=tk.X, padx=10, pady=(20, 0))
+                self._label2 = tk.Label(self._valueErrorWindow, text='[' + str(self._indexSearchEntry.get()) + ']')
+                self._label2.config(bg='gray24', fg='thistle', font='HELVETICA 20 bold')
+                self._label2.pack(fill=tk.X, padx=25, pady=10)
+                self._label3 = tk.Label(self._valueErrorWindow, text='within the specified array.')
+                self._label3.config(bg='indianred', fg='white', font='HELVETICA 20 bold')
+                self._label3.pack(fill=tk.X, padx=10)
+                self.closeButton = tk.Button(self._valueErrorWindow, text='CLOSE', width=20, font='HELVETICA 22 bold', command=lambda: self._valueErrorWindow.destroy())
                 self.closeButton.pack(fill=tk.X, padx=20, pady=20)
-                self.ValueError_Window.title('Value Error:')
-                self.ValueError_Window.minsize(400, 225)
-                self.ValueError_Window.resizable(False, False)
-                self.ValueError_Window.config(bg='indianred')
-                self.ValueError_Window.bind('<Return>', lambda cmd: self.ValueError_Window.destroy())
-                self.ValueError_Window.mainloop()
+                self._valueErrorWindow.title('Value Error:')
+                self._valueErrorWindow.minsize(400, 225)
+                self._valueErrorWindow.resizable(False, False)
+                self._valueErrorWindow.config(bg='indianred')
+                self._valueErrorWindow.bind('<Return>', lambda cmd: self._valueErrorWindow.destroy())
+                self._valueErrorWindow.mainloop()
 
         self.alpha = master
 
-        self.label1 = tk.Label(self.alpha, text='Search for element:', bg='gray28', fg='white', font='HELVETICA 20 bold')
-        self.label1.pack(fill=tk.X, padx=20, pady=20)
-        self.indexSearchEntry = tk.Entry(self.alpha, font='HELVETICA 24 bold', justify='center')
-        self.indexSearchEntry.pack(fill=tk.X, padx=20)
-        self.indexSearchEntry.focus()
+        self._label = tk.Label(self.alpha, text='Search for element:', bg='gray28', fg='white', font='HELVETICA 20 bold')
+        self._label.pack(fill=tk.X, padx=20, pady=20)
+        self._indexSearchEntry = tk.Entry(self.alpha, font='HELVETICA 24 bold', justify='center')
+        self._indexSearchEntry.pack(fill=tk.X, padx=20)
+        self._indexSearchEntry.focus()
 
         self._searchButton = tk.Button(self.alpha, text='SEARCH', font='HELVETICA 24 bold', command=lambda: find())
         self._searchButton.pack(fill=tk.X, padx=20, pady=20)
@@ -944,14 +967,14 @@ class VisualArray:
         def _split():
 
             try:
-                if self.tkvar.get() == 'hsplit()':
-                    return np.hsplit(self.array, int(self._splitVal.get())), str(self.tkvar.get())
-                elif self.tkvar.get() == 'vsplit()':
-                    return np.vsplit(self.array, int(self._splitVal.get())), str(self.tkvar.get())
-                elif self.tkvar.get() == 'dsplit()':
-                    return np.dsplit(self.array, int(self._splitVal.get())), str(self.tkvar.get())
+                if self._tkvar.get() == 'hsplit()':
+                    return np.hsplit(self.array, int(self._splitVal.get())), str(self._tkvar.get())
+                elif self._tkvar.get() == 'vsplit()':
+                    return np.vsplit(self.array, int(self._splitVal.get())), str(self._tkvar.get())
+                elif self._tkvar.get() == 'dsplit()':
+                    return np.dsplit(self.array, int(self._splitVal.get())), str(self._tkvar.get())
                 else:
-                    return np.array_split(self.array, int(self._splitVal.get()), axis=int(self._axisVal.get())), str(self.tkvar.get())
+                    return np.array_split(self.array, int(self._splitVal.get()), axis=int(self._axisVal.get())), str(self._tkvar.get())
 
             except ValueError as VE:
                 err = VE
@@ -959,19 +982,19 @@ class VisualArray:
                 self._valErrorWindow = tk.Tk()
 
                 if self._splitVal.get() == "":
-                    self.label9 = tk.Label(self._valErrorWindow, text="No value entered for split amount.")
-                    self.label9.config(text="No value entered for split amount." + "\nPlease supply a value for the empty entry bar.")
-                    self.label9.config(bg='ivory', fg='indianred3', font='HELVETICA 12 bold', justify='center')
-                    self.label9.pack(fill=tk.BOTH, pady=5, padx=10)
+                    self._label1 = tk.Label(self._valErrorWindow, text="No value entered for split amount.")
+                    self._label1.config(text="No value entered for split amount." + "\nPlease supply a value for the empty entry bar.")
+                    self._label1.config(bg='ivory', fg='indianred3', font='HELVETICA 12 bold', justify='center')
+                    self._label1.pack(fill=tk.BOTH, pady=5, padx=10)
                     self._valErrorWindow.geometry('300x100')
                     self._valErrorWindow.minsize(300, 100)
                     self.closeButton = tk.Button(self._valErrorWindow, text='CLOSE', font='HELVETICA 24 bold', command=lambda: self._valErrorWindow.destroy())
                     self.closeButton.pack(fill=tk.X, pady=5, padx=10)
 
                 if not self._splitVal.get().isdigit() and self._splitVal.get() != 'N/A':
-                    self.label9 = tk.Label(self._valErrorWindow, text="Please enter an integer value into the split amount.")
-                    self.label9.config(bg='ivory', fg='indianred3', font='HELVETICA 12 bold', justify='center')
-                    self.label9.pack(fill=tk.BOTH, pady=5, padx=10)
+                    self._label1 = tk.Label(self._valErrorWindow, text="Please enter an integer value into the split amount.")
+                    self._label1.config(bg='ivory', fg='indianred3', font='HELVETICA 12 bold', justify='center')
+                    self._label1.pack(fill=tk.BOTH, pady=5, padx=10)
                     self._valErrorWindow.geometry('300x95')
                     self._valErrorWindow.minsize(300, 95)
                     self.closeButton = tk.Button(self._valErrorWindow, text='CLOSE', font='HELVETICA 24 bold', command=lambda: self._valErrorWindow.destroy())
@@ -981,9 +1004,9 @@ class VisualArray:
                     self._valErrorWindow.grid_columnconfigure(0, weight=1)
                     self._valErrorWindow.grid_rowconfigure(0, weight=1)
                     self._valErrorWindow.grid_rowconfigure(1, weight=1)
-                    self.label9 = tk.Label(self._valErrorWindow, text=str(err)+'\nPlease try a value diff. than [' + str(self._axisVal.get()) + "]")
-                    self.label9.config(bg='ivory', fg='indianred3', font='HELVETICA 12 bold', justify='center')
-                    self.label9.grid(row=0, column=0, sticky='nsew', pady=15)
+                    self._label1 = tk.Label(self._valErrorWindow, text=str(err)+'\nPlease try a value diff. than [' + str(self._axisVal.get()) + "]")
+                    self._label1.config(bg='ivory', fg='indianred3', font='HELVETICA 12 bold', justify='center')
+                    self._label1.grid(row=0, column=0, sticky='nsew', pady=15)
                     self._valErrorWindow.geometry('300x150')
                     self._valErrorWindow.minsize(300, 150)
                     self.closeButton = tk.Button(self._valErrorWindow, text='CLOSE', font='HELVETICA 24 bold', command=lambda: self._valErrorWindow.destroy())
@@ -1001,9 +1024,9 @@ class VisualArray:
 
                 # Condition checks whether the axis value specified by the user is a valid integer.
                 if not self._axisVal.get().isdigit():
-                    self.label9 = tk.Label(self._valIndexErrorWindow, text="Axis value must be an integer value.")
-                    self.label9.config(bg='ivory', fg='indianred3', font='HELVETICA 12 bold', justify='center')
-                    self.label9.pack(fill=tk.BOTH, pady=5, padx=10)
+                    self._label1 = tk.Label(self._valIndexErrorWindow, text="Axis value must be an integer value.")
+                    self._label1.config(bg='ivory', fg='indianred3', font='HELVETICA 12 bold', justify='center')
+                    self._label1.pack(fill=tk.BOTH, pady=5, padx=10)
                     self._valErrorWindow.geometry('300x95')
                     self._valErrorWindow.minsize(300, 95)
                     self.closeButton = tk.Button(self._valIndexErrorWindow, text='CLOSE', font='HELVETICA 24 bold', command=lambda: self._valIndexErrorWindow.destroy())
@@ -1013,9 +1036,9 @@ class VisualArray:
                     self._valIndexErrorWindow.grid_columnconfigure(0, weight=1)
                     self._valIndexErrorWindow.grid_rowconfigure(0, weight=1)
                     self._valIndexErrorWindow.grid_rowconfigure(1, weight=1)
-                    self.label9 = tk.Label(self._valIndexErrorWindow, text=IE)
-                    self.label9.config(bg='ivory', fg='indianred3', font='HELVETICA 12 bold', justify='center')
-                    self.label9.grid(row=0, column=0, sticky='nsew', pady=15)
+                    self._label1 = tk.Label(self._valIndexErrorWindow, text=IE)
+                    self._label1.config(bg='ivory', fg='indianred3', font='HELVETICA 12 bold', justify='center')
+                    self._label1.grid(row=0, column=0, sticky='nsew', pady=15)
                     self._valIndexErrorWindow.geometry('300x150')
                     self._valIndexErrorWindow.minsize(300, 150)
                     self.closeButton = tk.Button(self._valIndexErrorWindow, text='CLOSE', font='HELVETICA 24 bold', command=lambda: self._valIndexErrorWindow.destroy())
@@ -1036,21 +1059,21 @@ class VisualArray:
             print(Console.bold + Console.cyan + 'Axis: ' + str(self._axisVal.get()) + " Split: " + str(self._splitVal.get()))
             print(Console.bold + Console.cyan + '-------------------------------------------------------' + Console.end)
 
-            y = []
+            self._y = []
             for element in x[0]:
-                y.append(element)
+                self._y.append(element)
             z = 0
-            for element in y:
+            for element in self._y:
                 for elements in list(element):
-                    y[z] = elements
+                    self._y[z] = elements
                 z += 1
 
             self.alpha = tk.Tk()
 
-            self.label1 = tk.Label(self.alpha, text='You selected:\n' + str(x[1]), bg='indianred3', fg='ivory', font='HELVETICA 20 bold').pack(fill=tk.X, padx=20, pady=5)
+            self._label1 = tk.Label(self.alpha, text='You selected:\n' + str(x[1]), bg='indianred3', fg='ivory', font='HELVETICA 20 bold').pack(fill=tk.X, padx=20, pady=5)
 
             self.label = tk.Text(self.alpha, font='Helvetica 18 bold', height=14)
-            for element in y:
+            for element in self._y:
                 self.label.tag_configure("center", justify='center')
                 self.label.insert(tk.END, str(element) + "\n")
                 self.label.tag_add("center", "1.0", "end")
@@ -1082,7 +1105,7 @@ class VisualArray:
             self.saveButton = tk.Button(self.alpha, text='Save as .txt', font='HELVETICA 24 bold', command=lambda: saveText())
             self.saveButton.pack(fill=tk.X, padx=20, pady=5)
 
-            self.label2 = tk.Label(self.alpha, text='Saves .txt to your desktop.', bg='indianred3', fg='ivory', font='HELVETICA 10 italic').pack(fill=tk.X, padx=20, pady=5)
+            self._label2 = tk.Label(self.alpha, text='Saves .txt to your desktop.', bg='indianred3', fg='ivory', font='HELVETICA 10 italic').pack(fill=tk.X, padx=20, pady=5)
 
             # Window attributes.
             self.alpha.title('SPLIT RESULT: ')
@@ -1096,14 +1119,14 @@ class VisualArray:
         # This method is binded to execute when an option is selected from the split method drop-down menu.
         # Method disabled/enables entry states depending on the method selected from the drop-down menu.
         def methodSelect():
-            if self.tkvar.get() == 'array_Split()':
+            if self._tkvar.get() == 'array_Split()':
                 self._axisEntry.config(state='normal')
                 self._axisVal.set('')
                 self._splitEntry.config(state='normal')
                 self._splitVal.set('')
 
             else:
-                if self.tkvar.get() == 'hsplit()' or self.tkvar.get() == 'vsplit()':
+                if self._tkvar.get() == 'hsplit()' or self._tkvar.get() == 'vsplit()':
                     self._splitEntry.config(state='normal')
                     self._splitVal.set('')
                 else:
@@ -1116,15 +1139,15 @@ class VisualArray:
                 self.master.after(1, self.master.update())
 
         # Drop-Down menu containing the different split methods that can be performed on the array.
-        self.label1 = tk.Label(self.master, text='Select specific split method:', bg='gray28', fg='white', font='HELVETICA 20 bold').pack(fill=tk.BOTH, padx=10, pady=(10, 5))
-        self.tkvar = tk.StringVar(self.master)
-        self.options = ['array_Split()', 'hsplit()', 'vsplit()']
-        self.splitMethodBox = tk.OptionMenu(self.master, self.tkvar, *self.options, command=lambda cmd: methodSelect())
-        self.tkvar.set(self.options[0])
-        self.splitMethodBox.pack(fill=tk.BOTH, padx=10, pady=5)
+        self._label1 = tk.Label(self.master, text='Select specific split method:', bg='gray28', fg='white', font='HELVETICA 20 bold').pack(fill=tk.BOTH, padx=10, pady=(10, 5))
+        self._tkvar = tk.StringVar(self.master)
+        self._options = ['array_Split()', 'hsplit()', 'vsplit()']
+        self._splitMethodBox = tk.OptionMenu(self.master, self._tkvar, *self._options, command=lambda cmd: methodSelect())
+        self._tkvar.set(self._options[0])
+        self._splitMethodBox.pack(fill=tk.BOTH, padx=10, pady=5)
 
         # Entry containing the number of splits to be performed on the array.
-        self.label2 = tk.Label(self.master, text='Enter number of splits:', bg='gray28', fg='white', font='HELVETICA 20 bold').pack(fill=tk.BOTH, padx=10, pady=5)
+        self._label2 = tk.Label(self.master, text='Enter number of splits:', bg='gray28', fg='white', font='HELVETICA 20 bold').pack(fill=tk.BOTH, padx=10, pady=5)
         self._splitVal = tk.StringVar()
         self._splitEntry = tk.Entry(self.master, font='HELVETICA 24 bold', justify='center', textvariable=self._splitVal)
         self._splitEntry.pack(fill=tk.BOTH, padx=10, pady=5)
@@ -1133,7 +1156,7 @@ class VisualArray:
         self._frame = tk.Frame(self.master, bg='indianred3')
 
         # If array_Split() is selected by user, then we can split the array also on a given axis; Not available for the other particular methods.
-        self.label3 = tk.Label(self._frame, text='Axis=', bg='gray28', fg='white', font='HELVETICA 20 bold').pack(side=tk.LEFT, fill=tk.X, pady=5)
+        self._label3 = tk.Label(self._frame, text='Axis=', bg='gray28', fg='white', font='HELVETICA 20 bold').pack(side=tk.LEFT, fill=tk.X, pady=5)
         self._axisVal = tk.StringVar(self._frame)
         self._axisEntry = tk.Entry(self._frame, font='HELVETICA 24 bold', justify='center', textvariable=self._axisVal)
         self._axisEntry.pack(fill=tk.X, side=tk.RIGHT, pady=5)
@@ -1150,6 +1173,12 @@ class VisualArray:
         self.master.config(bg='indianred')
         self.master.bind('<Return>', lambda cmd: popUp())
         self.master.mainloop()
+
+    def sort_(self, master):
+        print('[SORT]')
+
+    def filter_(self, master):
+        print('[FILTER]')
 
     # Getter methods.
     def get_NumDimensions(self): return self.numDimensions
