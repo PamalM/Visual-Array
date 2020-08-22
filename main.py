@@ -567,7 +567,7 @@ class VisualArray:
 
                     if self.get_NumDimensions() == 1:
                         # Had to perform an extra check for the float data type because was having trouble entering it into the listbox initially.
-                        # Was having trouble inserting a float, but every other data type was working. Special case must be added for the float and the string data types. 
+                        # Was having trouble inserting a float, but every other data type was working. Special case must be added for the float and the string data types.
                         if self.get_DataType() == 'Float':
                             self.array[0][int(self.indexEntry.get())] = self._elementEntry.get()
                         else:
@@ -620,9 +620,6 @@ class VisualArray:
 
             # Display an error window if the entered element/index cannot be added into the array.
             except ValueError as VE:
-
-                print(VE)
-
                 self._valErrorWindow = tk.Tk()
 
                 self._frame = tk.Frame(self._valErrorWindow, bg='indianred3')
