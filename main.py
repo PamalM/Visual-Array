@@ -566,27 +566,14 @@ class VisualArray:
                         self._temp = self._elementEntry.get()
 
                     if self.get_NumDimensions() == 1:
-                        # Had to perform an extra check for the float data type because was having trouble entering it into the listbox initially.
-                        # Was having trouble inserting a float, but every other data type was working. Special case must be added for the float and the string data types.
-                        if self.get_DataType() == 'Float':
-                            self.array[0, int(self.indexEntry.get())] = self._elementEntry.get()
-
-                        else:
-                            self.array[0][int(self.indexEntry.get())] = self._temp
-
+                        self.array[0][int(self.indexEntry.get())] = self._temp
                         self._msg = 'Inserted Element [' + self._elementEntry.get() + "] @ Index [" + self.indexEntry.get() + "] in Dimension [1]"
 
                     elif self.get_NumDimensions() == 2 or 3:
                         # Dictionary to bind selections from drop-down box to correct array indexing.
                         self._dimVal = {'Dimension [1]': 0, 'Dimension [2]': 1, 'Dimension [3]': 2}
-
-                        if self.get_DataType() == 'Float':
-                            self.array[self._dimVal.get(self._tkvar.get())][int(self.indexEntry.get())] = self._elementEntry.get()
-                        else:
-                            self.array[self._dimVal.get(self._tkvar.get())][int(self.indexEntry.get())] = self._temp
-
+                        self.array[self._dimVal.get(self._tkvar.get())][int(self.indexEntry.get())] = self._temp
                         self._msg = 'Inserted Element [' + self._elementEntry.get() + "] @ Index [" + self.indexEntry.get() + "] in " + self._tkvar.get()
-
                 else:
                     self.boolConv = {"True": 1, "False": 0}
                     if self.get_NumDimensions() == 1:
