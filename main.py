@@ -217,7 +217,7 @@ class VisualArray:
             if self.get_DataType() == 'Integer':
                 self.array = np.zeros(shape=(int(self.get_NumDimensions()), int(self.get_NumElements())), dtype='i')
             elif self.get_DataType() == 'Float':
-                self.array = np.zeros(shape=(int(self.get_NumDimensions()), int(self.get_NumElements())), dtype='f')
+                self.array = np.zeros(shape=(int(self.get_NumDimensions()), int(self.get_NumElements())), dtype='float')
             elif self.get_DataType() == 'Boolean':
                 self.array = np.ones((int(self.get_NumDimensions()), int(self.get_NumElements())), dtype=np.bool)
             elif self.get_DataType() == 'String':
@@ -562,35 +562,29 @@ class VisualArray:
                 if self.get_DataType() != 'Boolean':
                     if self.get_DataType() == 'String':
                         self._temp = "'" + str(self._elementEntry.get()) + "'"
-                    elif self.get_DataType() == 'Integer':
-                        self._temp = int(self._elementEntry.get())
+                    else:
+                        self._temp = self._elementEntry.get()
 
                     if self.get_NumDimensions() == 1:
                         # Had to perform an extra check for the float data type because was having trouble entering it into the listbox initially.
                         # Was having trouble inserting a float, but every other data type was working. Special case must be added for the float and the string data types.
                         if self.get_DataType() == 'Float':
-                            self.array[0][int(self.indexEntry.get())] = self._elementEntry.get()
+                            self.array[0, int(self.indexEntry.get())] = self._elementEntry.get()
+
                         else:
                             self.array[0][int(self.indexEntry.get())] = self._temp
 
                         self._msg = 'Inserted Element [' + self._elementEntry.get() + "] @ Index [" + self.indexEntry.get() + "] in Dimension [1]"
 
                     elif self.get_NumDimensions() == 2 or 3:
-                        if self._tkvar.get() == 'Dimension [1]':
-                            if self.get_DataType() == 'Float':
-                                self.array[0][int(self.indexEntry.get())] = self._elementEntry.get()
-                            else:
-                                self.array[0][int(self.indexEntry.get())] = self._temp
-                        elif self._tkvar.get() == 'Dimension [2]':
-                            if self.get_DataType() == 'Float':
-                                self.array[1][int(self.indexEntry.get())] = self._elementEntry.get()
-                            else:
-                                self.array[1][int(self.indexEntry.get())] = self._temp
-                        if self._tkvar.get() == 'Dimension [3]':
-                            if self.get_DataType() == 'Float':
-                                self.array[2][int(self.indexEntry.get())] = self._elementEntry.get()
-                            else:
-                                self.array[2][int(self.indexEntry.get())] = self._temp
+                        # Dictionary to bind selections from drop-down box to correct array indexing.
+                        self._dimVal = {'Dimension [1]': 0, 'Dimension [2]': 1, 'Dimension [3]': 2}
+
+                        if self.get_DataType() == 'Float':
+                            self.array[self._dimVal.get(self._tkvar.get())][int(self.indexEntry.get())] = self._elementEntry.get()
+                        else:
+                            self.array[self._dimVal.get(self._tkvar.get())][int(self.indexEntry.get())] = self._temp
+
                         self._msg = 'Inserted Element [' + self._elementEntry.get() + "] @ Index [" + self.indexEntry.get() + "] in " + self._tkvar.get()
 
                 else:
@@ -620,6 +614,7 @@ class VisualArray:
 
             # Display an error window if the entered element/index cannot be added into the array.
             except ValueError as VE:
+                print(VE)
                 self._valErrorWindow = tk.Tk()
 
                 self._frame = tk.Frame(self._valErrorWindow, bg='indianred3')
@@ -1172,7 +1167,8 @@ class VisualArray:
         self.master.mainloop()
 
     def sort_(self, master):
-        print('[SORT]')
+        self._sortedArray = np.sort(self.array)
+        print(self._sortedArray)
 
     def filter_(self, master):
         print('[FILTER]')
