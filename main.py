@@ -298,6 +298,7 @@ class VisualArray:
 
     # Displays the array's contents and available methods.
     def arrayHub(self, master):
+
         # The terminal method directs the user depending on the tag specified.
         # (InsertWindow = 1, DeleteWindow = 2, SearchWindow = 3, SplitWindow = 4, SortWindow = 5, FilterWindow = 6)
         def terminal(tag):
@@ -1148,17 +1149,282 @@ class VisualArray:
         self.master.title('SPLIT:')
         self.master.geometry('400x225')
         self.master.resizable(False, False)
-        self.master.minsize(400, 280)
+        self.master.minsize(400, 225)
         self.master.config(bg='indianred')
         self.master.bind('<Return>', lambda cmd: popUp())
         self.master.mainloop()
 
     def sort_(self, master):
+        # Perform and save a copy of the sorted array. The actual original array in the arrayHub will not be affected, but rather a copy of the array is shown.
         self._sortedArray = np.sort(self.array)
-        print(self._sortedArray)
+
+        print(Console.bold + Console.cyan + '-------------------------------------------------------' + Console.end)
+        print(Console.bold + Console.green + Console.underline + "Array has been sorted:" + Console.end)
+        for element in self._sortedArray:
+            print(element)
+        print(Console.bold + Console.cyan + '-------------------------------------------------------' + Console.end)
+
+        self.alpha = master
+
+        self._label = tk.Label(self.alpha, text='View Sorted Array:', bg='gray28', fg='white', font='HELVETICA 20 bold')
+        self._label.pack(fill=tk.X, padx=20, pady=(10, 5))
+        self._sortBox = tk.Text(self.alpha, font='Helvetica 18 bold', height=10)
+
+        # Insert elements from sorted array into textbox for user to view.
+        for element in self._sortedArray:
+            self._sortBox.tag_configure("center", justify='center')
+            self._sortBox.insert(tk.END, str(element) + "\n")
+            self._sortBox.tag_add("center", "1.0", "end")
+
+        def saveText():
+            # Get specific username of user's to allow use to write to their local desktop on their machines.
+            username = getpass.getuser()
+
+            # Get the user's machine.
+            uMachine = platform.system()
+            if uMachine == 'Darwin':
+                filename = "//Users//{0}//Desktop//splitArray.txt".format(username)
+            elif uMachine == 'Windows':
+                filename = "C:\\Users\\{0}\\Desktop\\splitArray.txt".format(username)
+            elif uMachine == 'Linux':
+                filename = "//home//{0}//Desktop//splitArray.txt".format(username)
+            else:
+                filename = 'NOF'
+            if filename != 'NOF':
+                file = open(filename, 'w')
+                # Write the contents of the array before split, and after the split alongside,  the attributes specified by the user into the .txt file.
+                file.write(str(self._sortBox.get("1.0", tk.END)))
+                file.close()
+            else:
+                print('Error determining user OS; Error writing to file!')
+
+        self._sortBox.pack(padx=20, pady=5, fill=tk.X)
+        self._label2 = tk.Label(self.alpha, text='Saves .txt to your desktop.', bg='indianred3', fg='ivory', font='HELVETICA 10 italic').pack(fill=tk.X, padx=20, pady=(10, 0))
+        self.saveButton = tk.Button(self.alpha, text='Save as .txt', font='HELVETICA 24 bold', command=lambda: saveText())
+        self.saveButton.pack(fill=tk.X, padx=20, pady=5)
+
+        # Search window attributes.
+        self.alpha.geometry('400x375')
+        self.alpha.minsize(400, 375)
+        self.alpha.title('SORT:')
+        self.alpha.config(bg='indianred')
+        self.alpha.resizable(False, False)
+        self.alpha.mainloop()
 
     def filter_(self, master):
-        print('[FILTER]')
+
+        def updateGUI(event):
+
+            if self.get_DataType() == 'Integer' or 'Float':
+                if self._tkvar.get() == 'elements > Value':
+                    self._label2['state'] = tk.NORMAL
+                    self._valEntry.config(state='normal')
+                    self._value.set('')
+                    self._label2.config(text='>')
+                elif self._tkvar.get() == 'elements < Value':
+                    self._label2['state'] = tk.NORMAL
+                    self._valEntry.config(state='normal')
+                    self._value.set('')
+                    self._label2.config(text='<')
+                elif self._tkvar.get() == 'elements == Value':
+                    self._label2['state'] = tk.NORMAL
+                    self._valEntry.config(state='normal')
+                    self._value.set('')
+                    self._label2.config(text='==')
+
+                else:
+                    self._label2['state'] = tk.DISABLED
+                    self._label2['text'] = ''
+                    self._valEntry.config(state='disabled')
+                    self._value.set('N/A')
+
+            elif self.get_DataType() == 'String':
+                self._label2['state'] = tk.DISABLED
+                self._label2['text'] = ''
+                self._valEntry.config(state='disabled')
+                self._value.set('N/A')
+
+            self.master.update()
+
+        # Method views filtered array in new GUI.
+        def viewFilter(arr):
+            print(Console.bold + Console.cyan + '-------------------------------------------------------' + Console.end)
+            print(Console.bold + Console.green + Console.underline + "Array has been filterd:" + Console.end)
+            for element in arr:
+                print(element)
+            print(Console.bold + Console.cyan + '-------------------------------------------------------' + Console.end)
+
+            self.alpha = tk.Tk()
+
+            self._label1 = tk.Label(self.alpha, text='View Filtered Array:', bg='gray28', fg='white', font='HELVETICA 20 bold')
+            self._label1.pack(fill=tk.X, padx=20, pady=(10, 5))
+            self._filterBox = tk.Text(self.alpha, font='Helvetica 18 bold', height=10)
+
+            # Insert elements from sorted array into textbox for user to view.
+            for element in arr:
+                self._filterBox.tag_configure("center", justify='center')
+                self._filterBox.insert(tk.END, str(element) + "\n")
+                self._filterBox.tag_add("center", "1.0", "end")
+
+            def saveText():
+                # Get specific username of user's to allow use to write to their local desktop on their machines.
+                username = getpass.getuser()
+
+                # Get the user's machine.
+                uMachine = platform.system()
+                if uMachine == 'Darwin':
+                    filename = "//Users//{0}//Desktop//splitArray.txt".format(username)
+                elif uMachine == 'Windows':
+                    filename = "C:\\Users\\{0}\\Desktop\\splitArray.txt".format(username)
+                elif uMachine == 'Linux':
+                    filename = "//home//{0}//Desktop//splitArray.txt".format(username)
+                else:
+                    filename = 'NOF'
+                if filename != 'NOF':
+                    file = open(filename, 'w')
+                    # Write the contents of the array before split, and after the split alongside,  the attributes specified by the user into the .txt file.
+                    file.write(str(self._filterBox.get("1.0", tk.END)))
+                    file.close()
+                else:
+                    print('Error determining user OS; Error writing to file!')
+
+            self._filterBox.pack(padx=20, pady=5, fill=tk.X)
+            self._label = tk.Label(self.alpha, text='Saves .txt to your desktop.', bg='indianred3', fg='ivory', font='HELVETICA 10 italic').pack(fill=tk.X, padx=20, pady=(10, 0))
+            self.saveButton = tk.Button(self.alpha, text='Save as .txt', font='HELVETICA 24 bold', command=lambda: saveText())
+            self.saveButton.pack(fill=tk.X, padx=20, pady=5)
+
+            # Search window attributes.
+            self.alpha.geometry('400x375')
+            self.alpha.minsize(400, 375)
+            self.alpha.title('SORT:')
+            self.alpha.config(bg='indianred')
+            self.alpha.resizable(False, False)
+            self.alpha.mainloop()
+
+        # Method performs filter provided by user on array.
+        def performFilter():
+            try:
+                self.npArray = np.asarray(self.array)
+
+                self._method = self._tkvar.get()    # Selection from drop-down menu.
+                self._Val = self._value.get()    # Entry bar value entered by user.
+
+                if self._method == 'elements > Value':
+                    if self.get_DataType() == 'Integer':
+                        self._filter = self.npArray > int(self._Val)
+                    elif self.get_DataType() == 'Float':
+                        self._filter = self.npArray > float(self._Val)
+                    self._filtered = self.npArray[self._filter]
+
+                elif self._method == 'elements < Value':
+                    if self.get_DataType() == 'Integer':
+                        self._filter = self.npArray < int(self._Val)
+                    elif self.get_DataType() == 'Float':
+                        self._filter = self.npArray < float(self._Val)
+                    self._filtered = self.npArray[self._filter]
+
+                elif self._method == 'elements == Value':
+                    if self.get_DataType() == 'Integer':
+                        self._filter = self.npArray == int(self._Val)
+                    elif self.get_DataType() == 'Float':
+                        self._filter = self.npArray == float(self._Val)
+                    self._filtered = self.npArray[self._filter]
+
+                elif self._method == 'even elements':
+                    self._filtered = self.npArray[self.npArray % 2 == 0]
+                elif self._method == 'odd elements':
+                    self._filtered = self.npArray[self.npArray % 2 != 0]
+                elif self._method == 'Filter empty elements':
+                    if self.get_DataType() == 'Integer':
+                        self._filtered = self.npArray[self.npArray != 0]
+                    elif self.get_DataType() == 'Float':
+                        self._filtered = self.npArray[self.npArray != 0.0]
+                    elif self.get_DataType() == 'String':
+                        self._filtered = self.npArray[self.npArray != "''"]
+
+                viewFilter(self._filtered)
+
+            except ValueError as VE:
+                self._valErrorWindow = tk.Tk()
+
+                self._frame = tk.Frame(self._valErrorWindow, relief='solid', borderwidth=4, highlightbackground='white',
+                                       highlightthickness=4, highlightcolor='gray25', bg='indianred3')
+
+                self._label = tk.Label(self._frame, text='Invalid Value provided.', font='HELVETICA 22 bold', bg='gray20', fg='white').pack(fill=tk.BOTH, pady=10, padx=20)
+                if self._valEntry.get() != '':
+                    self._label2 = tk.Label(self._frame, text='You have entered: ' + self._valEntry.get(), bg='gray20', fg='white', font='HELVETICA 14 italic')
+                    self._label2.pack(pady=5, padx=20)
+                else:
+                    self._label2 = tk.Label(self._frame, text='No value entered.' + self._valEntry.get(), bg='gray20', fg='white', font='HELVETICA 14 italic')
+                    self._label2.pack(pady=5, padx=20)
+
+                # Button to close notice Window.
+                self._buttonFrame = tk.Frame(self._valErrorWindow, relief='solid', borderwidth=4, highlightbackground='gray25', highlightthickness=4, highlightcolor='white')
+                self._closeButton = tk.Button(self._buttonFrame, text='CLOSE', font='HELVETICA 24 bold', command=lambda: self._valErrorWindow.destroy())
+                self._closeButton.pack(fill=tk.BOTH, expand=True)
+
+                self._frame.pack(expand=True, fill=tk.BOTH, padx=14, pady=4)
+                self._buttonFrame.pack(fill=tk.BOTH, padx=10, pady=(0, 4), expand=True)
+
+                # Notice window attributes.
+                self._valErrorWindow.configure(bg='gray25')
+                self._valErrorWindow.geometry('400x200')
+                self._valErrorWindow.resizable(False, False)
+                self._valErrorWindow.bind('<Return>', lambda cmd: self._valErrorWindow.destroy())
+                self._valErrorWindow.title('Notice!')
+                self._valErrorWindow.mainloop()
+
+        self.master = master
+
+        self._label = tk.Label(self.master, text='SELECT TYPE OF FILTER:', bg='gray28', fg='white', font='HELVETICA 20 bold')
+        self._label.pack(fill=tk.X, padx=20, pady=10)
+
+        self._filters = []
+        if self.get_DataType() == 'String':
+            self._filters = ['Filter empty elements']
+
+        elif self.get_DataType() == 'Integer' or self.get_DataType() == 'Float':
+            self._filters = ['elements > Value',
+                             'elements < Value',
+                             'elements == Value',
+                             'even elements',
+                             'odd elements',
+                             'Filter empty elements']
+
+        elif self.get_DataType() == 'Boolean':
+            self._filters = ['Enter filter expressions']
+
+        self._tkvar = tk.StringVar()
+        self._filterAction = tk.OptionMenu(self.master, self._tkvar, *self._filters, command=updateGUI)
+        self._tkvar.set("Make Selection")
+        self._filterAction.pack(fill=tk.BOTH, padx=20)
+
+        self._value = tk.StringVar()
+        self._frame = tk.Frame(self.master)
+
+        self._valEntry = tk.Entry(self._frame, font='HELVETICA 24 bold', justify='center', textvariable=self._value, state='disabled', bg='ivory')
+        self._value.set('N/A')
+        self._valEntry.grid(row=0, column=1)
+
+        self._label2 = tk.Label(self._frame, text='', font='HELVETICA 24 bold')
+        self._label2.grid(row=0, column=0)
+
+        self._frame.grid_rowconfigure(0, weight=1)
+        self._frame.grid_rowconfigure(1, weight=1)
+        self._frame.grid_columnconfigure(0, weight=1)
+        self._frame.grid_columnconfigure(1, weight=1)
+        self._frame.pack(padx=20, pady=10)
+
+        self._filterButton = tk.Button(self.master, text='FILTER', font='HELVETICA 24 bold', command=lambda: performFilter())
+        self._filterButton.pack(fill=tk.X, padx=20, pady=5)
+
+        self.master.title('FILTER:')
+        self.master.geometry('400x200')
+        self.master.resizable(False, False)
+        self.master.minsize(400, 200)
+        self.master.config(bg='indianred')
+        self.master.bind('<Return>', lambda cmd: performFilter())
+        self.master.mainloop()
 
     # Getter methods.
     def get_NumDimensions(self): return self.numDimensions
