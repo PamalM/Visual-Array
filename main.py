@@ -54,7 +54,6 @@ try:
     print(Console.brightBlue + '[GetPass]...' + Console.end)
     import platform
     print(Console.brightBlue + '[Platform]...' + Console.end)
-
     print(Console.green + Console.underline + Console.darkCyan + '[Imports were successful!]\n' + Console.end)
 
 except ImportError:
@@ -389,9 +388,7 @@ class VisualArray:
         def restart():
             self.master.destroy()
             self.master.quit()
-            root = tk.Tk()
-            self.__init__(root)
-            root.mainloop()
+            main()
 
         self.master = master
         self._frame = tk.Frame(self.master, bg='indianred3', relief='solid', borderwidth=4, highlightbackground='white', highlightthickness=4, highlightcolor='gray25')
@@ -505,6 +502,8 @@ class VisualArray:
         self._sortButton.grid(row=1, column=2, sticky='nsew')
 
         self._filterButton = tk.Button(self._methodsFrame, text='FILTER', font='HELVETICA 30 bold', width=20, command=lambda: terminal(6), relief='raised')
+        if self.get_DataType() == 'Boolean':
+            self._filterButton.config(state='disabled')
         self._filterButton.grid(row=2, column=2, sticky='nsew')
 
         self._methodsFrame.pack(fill=tk.BOTH, padx=20, expand=True, pady=10)
@@ -676,7 +675,6 @@ class VisualArray:
         # If the dimension isn't 1, then a drop-down menu will be presented to the user to select which dimension to insert element in.
         if self.get_NumDimensions() != 1:
             self.alpha.after(1, self.alpha.minsize(400, 400))
-            self._tkvar = tk.StringVar()
             self._options = []
             x = 0
             while x < int(self.get_NumDimensions()):
@@ -1214,7 +1212,6 @@ class VisualArray:
     def filter_(self, master):
 
         def updateGUI(event):
-
             if self.get_DataType() == 'Integer' or 'Float':
                 if self._tkvar.get() == 'elements > Value':
                     self._label2['state'] = tk.NORMAL
@@ -1305,45 +1302,45 @@ class VisualArray:
         def performFilter():
             try:
                 self.npArray = np.asarray(self.array)
+                self._method = self._tkvar.get()  # Selection from drop-down menu
 
-                self._method = self._tkvar.get()    # Selection from drop-down menu.
-                self._Val = self._value.get()    # Entry bar value entered by user.
+                if self.get_DataType() != 'Boolean':
+                    self._Val = self._value.get()    # Entry bar value entered by user.
 
-                if self._method == 'elements > Value':
-                    if self.get_DataType() == 'Integer':
-                        self._filter = self.npArray > int(self._Val)
-                    elif self.get_DataType() == 'Float':
-                        self._filter = self.npArray > float(self._Val)
-                    self._filtered = self.npArray[self._filter]
+                    if self._method == 'elements > Value':
+                        if self.get_DataType() == 'Integer':
+                            self._filter = self.npArray > int(self._Val)
+                        elif self.get_DataType() == 'Float':
+                            self._filter = self.npArray > float(self._Val)
+                        self._filtered = self.npArray[self._filter]
 
-                elif self._method == 'elements < Value':
-                    if self.get_DataType() == 'Integer':
-                        self._filter = self.npArray < int(self._Val)
-                    elif self.get_DataType() == 'Float':
-                        self._filter = self.npArray < float(self._Val)
-                    self._filtered = self.npArray[self._filter]
+                    elif self._method == 'elements < Value':
+                        if self.get_DataType() == 'Integer':
+                            self._filter = self.npArray < int(self._Val)
+                        elif self.get_DataType() == 'Float':
+                            self._filter = self.npArray < float(self._Val)
+                        self._filtered = self.npArray[self._filter]
 
-                elif self._method == 'elements == Value':
-                    if self.get_DataType() == 'Integer':
-                        self._filter = self.npArray == int(self._Val)
-                    elif self.get_DataType() == 'Float':
-                        self._filter = self.npArray == float(self._Val)
-                    self._filtered = self.npArray[self._filter]
+                    elif self._method == 'elements == Value':
+                        if self.get_DataType() == 'Integer':
+                            self._filter = self.npArray == int(self._Val)
+                        elif self.get_DataType() == 'Float':
+                            self._filter = self.npArray == float(self._Val)
+                        self._filtered = self.npArray[self._filter]
 
-                elif self._method == 'even elements':
-                    self._filtered = self.npArray[self.npArray % 2 == 0]
-                elif self._method == 'odd elements':
-                    self._filtered = self.npArray[self.npArray % 2 != 0]
-                elif self._method == 'Filter empty elements':
-                    if self.get_DataType() == 'Integer':
-                        self._filtered = self.npArray[self.npArray != 0]
-                    elif self.get_DataType() == 'Float':
-                        self._filtered = self.npArray[self.npArray != 0.0]
-                    elif self.get_DataType() == 'String':
-                        self._filtered = self.npArray[self.npArray != "''"]
+                    elif self._method == 'even elements':
+                        self._filtered = self.npArray[self.npArray % 2 == 0]
+                    elif self._method == 'odd elements':
+                        self._filtered = self.npArray[self.npArray % 2 != 0]
+                    elif self._method == 'Filter empty elements':
+                        if self.get_DataType() == 'Integer':
+                            self._filtered = self.npArray[self.npArray != 0]
+                        elif self.get_DataType() == 'Float':
+                            self._filtered = self.npArray[self.npArray != 0.0]
+                        elif self.get_DataType() == 'String':
+                            self._filtered = self.npArray[self.npArray != "''"]
 
-                viewFilter(self._filtered)
-
+                    viewFilter(self._filtered)
             except ValueError as VE:
                 self._valErrorWindow = tk.Tk()
 
@@ -1376,70 +1373,63 @@ class VisualArray:
 
         self.master = master
 
-        self._label = tk.Label(self.master, text='SELECT TYPE OF FILTER:', bg='gray28', fg='white', font='HELVETICA 20 bold')
-        self._label.pack(fill=tk.X, padx=20, pady=10)
+        if self.get_DataType() != 'Boolean':
+            self._label = tk.Label(self.master, text='SELECT TYPE OF FILTER:', bg='gray28', fg='white', font='HELVETICA 20 bold')
+            self._label.pack(fill=tk.X, padx=20, pady=10)
 
-        self._filters = []
-        if self.get_DataType() == 'String':
-            self._filters = ['Filter empty elements']
+            self._filters = []
+            if self.get_DataType() == 'String':
+                self._filters = ['Filter empty elements']
 
-        elif self.get_DataType() == 'Integer' or self.get_DataType() == 'Float':
-            self._filters = ['elements > Value',
-                             'elements < Value',
-                             'elements == Value',
-                             'even elements',
-                             'odd elements',
-                             'Filter empty elements']
+            elif self.get_DataType() == 'Integer' or self.get_DataType() == 'Float':
+                self._filters = ['elements > Value',
+                                 'elements < Value',
+                                 'elements == Value',
+                                 'even elements',
+                                 'odd elements',
+                                 'Filter empty elements']
 
-        elif self.get_DataType() == 'Boolean':
-            self._filters = ['Enter filter expressions']
+            self._tkvar = tk.StringVar()
+            self._filterAction = tk.OptionMenu(self.master, self._tkvar, *self._filters, command=updateGUI)
+            self._tkvar.set("Make Selection")
+            self._filterAction.pack(fill=tk.BOTH, padx=20)
 
-        self._tkvar = tk.StringVar()
-        self._filterAction = tk.OptionMenu(self.master, self._tkvar, *self._filters, command=updateGUI)
-        self._tkvar.set("Make Selection")
-        self._filterAction.pack(fill=tk.BOTH, padx=20)
+            self._value = tk.StringVar()
+            self._frame = tk.Frame(self.master)
 
-        self._value = tk.StringVar()
-        self._frame = tk.Frame(self.master)
+            self._valEntry = tk.Entry(self._frame, font='HELVETICA 24 bold', justify='center', textvariable=self._value, state='disabled', bg='ivory')
+            self._value.set('N/A')
+            self._valEntry.grid(row=0, column=1)
 
-        self._valEntry = tk.Entry(self._frame, font='HELVETICA 24 bold', justify='center', textvariable=self._value, state='disabled', bg='ivory')
-        self._value.set('N/A')
-        self._valEntry.grid(row=0, column=1)
+            self._label2 = tk.Label(self._frame, text='', font='HELVETICA 24 bold')
+            self._label2.grid(row=0, column=0)
 
-        self._label2 = tk.Label(self._frame, text='', font='HELVETICA 24 bold')
-        self._label2.grid(row=0, column=0)
+            self._frame.grid_rowconfigure(0, weight=1)
+            self._frame.grid_rowconfigure(1, weight=1)
+            self._frame.grid_columnconfigure(0, weight=1)
+            self._frame.grid_columnconfigure(1, weight=1)
+            self._frame.pack(padx=20, pady=10)
 
-        self._frame.grid_rowconfigure(0, weight=1)
-        self._frame.grid_rowconfigure(1, weight=1)
-        self._frame.grid_columnconfigure(0, weight=1)
-        self._frame.grid_columnconfigure(1, weight=1)
-        self._frame.pack(padx=20, pady=10)
+            self._filterButton = tk.Button(self.master, text='FILTER', font='HELVETICA 24 bold', command=lambda: performFilter())
+            self._filterButton.pack(fill=tk.X, padx=20, pady=5)
 
-        self._filterButton = tk.Button(self.master, text='FILTER', font='HELVETICA 24 bold', command=lambda: performFilter())
-        self._filterButton.pack(fill=tk.X, padx=20, pady=5)
-
-        self.master.title('FILTER:')
-        self.master.geometry('400x200')
-        self.master.resizable(False, False)
-        self.master.minsize(400, 200)
-        self.master.config(bg='indianred')
-        self.master.bind('<Return>', lambda cmd: performFilter())
-        self.master.mainloop()
+            self.master.title('FILTER:')
+            self.master.geometry('400x200')
+            self.master.resizable(False, False)
+            self.master.minsize(400, 200)
+            self.master.config(bg='indianred')
+            self.master.bind('<Return>', lambda cmd: performFilter())
+            self.master.mainloop()
 
     # Getter methods.
     def get_NumDimensions(self): return self.numDimensions
-
     def get_DataType(self): return self.dataType
-
     def get_Array(self): return self.array
-
     def get_NumElements(self): return self.numElements
 
     # Setter methods.
     def set_NumDimensions(self, val): self.numDimensions = val
-
     def set_DataType(self, val): self.dataType = val
-
     def set_NumElements(self, val): self.numElements = val
 
 
