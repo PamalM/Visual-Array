@@ -12,7 +12,7 @@ Basic Run-down of the program:
 """
 
 
-# Class is utilized to provide typography and color attributes to console messages.
+# Class is utilized to provide typography and color attributes to console outputs.
 class Console:
     purple = '\033[95m'
     cyan = '\033[96m'
@@ -28,25 +28,22 @@ class Console:
     underline = '\033[4m'
     end = '\033[0m'
 
+
 # Try-Catch to ensure the user has the necessary libraries to execute this program.
 try:
     print(Console.yellow + Console.bold + '\n[Welcome to Visual Array]\n' + Console.end)
     print(Console.bold + Console.cyan + '---------------------------------\n' + Console.end)
     print(Console.bold + Console.underline + Console.darkCyan + '[Attempting to import required libraries:]' + Console.end)
-
     # Numpy library allows us to create arrays that are much more space efficient and provide for better code-optimization.
     import numpy as np
     print(Console.brightBlue + '[Numpy]...' + Console.end)
-
     # Tkinter library allows us to visualize the the numpy array in a Graphical-User-Interface (GUI).
     import tkinter as tk
     print(Console.brightBlue + '[Tkinter]...' + Console.end)
-
     # Tabulate library is utilized for the console messages and debugging messages printed by the program during execution.
     # Provides for a clean console output, and better visual appeal to the user/programmer when debugging or running the program.
     from tabulate import tabulate
     print(Console.brightBlue + '[Tabulate]...' + Console.end)
-
     # Os library allows us to write (.txt) files to the user's desktop on their machine.
     import os
     print(Console.brightBlue + '[OS]...' + Console.end)
@@ -209,7 +206,15 @@ class VisualArray:
 
         # Method transfers user and initializes the array with the attributes specified, before entering the arrayHub.
         def transfer():
-            self.set_DataType(self._listBox.get(self._listBox.curselection()))
+            if self._listBox.get(self._listBox.curselection()) == 'Integer':
+                self.set_DataType('Integer')
+            elif self._listBox.get(self._listBox.curselection()) == 'Float':
+                self.set_DataType('Float')
+            elif self._listBox.get(self._listBox.curselection()) == 'Boolean':
+                self.set_DataType('Boolean')
+            elif self._listBox.get(self._listBox.curselection()) == 'String':
+                self.set_DataType('String')
+
             self.master.destroy()
             self.master.quit()
 
@@ -485,23 +490,27 @@ class VisualArray:
         self._label2 = tk.Label(self._methodsFrame, text='Array Methods:', fg='white', bg='black', font='Helvetica 24 bold')
         self._label2.grid(row=0, column=0, columnspan=3, sticky='nsew')
 
+        def keyMonitor(event):
+            if event.keysym == 'N' or 'n':
+                restart()
+
         # Array Method Buttons.
-        self._insertButton = tk.Button(self._methodsFrame, text='INSERT', font='HELVETICA 30 bold', width=20, command=lambda: terminal(1), relief='raised')
+        self._insertButton = tk.Button(self._methodsFrame, text='(1) INSERT', font='HELVETICA 30 bold', width=20, command=lambda: terminal(1), relief='raised')
         self._insertButton.grid(row=1, column=0, sticky='nsew')
 
-        self._deleteButton = tk.Button(self._methodsFrame, text='DELETE', font='HELVETICA 30 bold', width=20, command=lambda: terminal(2), relief='raised')
+        self._deleteButton = tk.Button(self._methodsFrame, text='(2) DELETE', font='HELVETICA 30 bold', width=20, command=lambda: terminal(2), relief='raised')
         self._deleteButton.grid(row=2, column=0, sticky='nsew')
 
-        self._searchButton = tk.Button(self._methodsFrame, text='SEARCH', font='HELVETICA 30 bold', width=20, command=lambda: terminal(3), relief='raised')
+        self._searchButton = tk.Button(self._methodsFrame, text='(3) SEARCH', font='HELVETICA 30 bold', width=20, command=lambda: terminal(3), relief='raised')
         self._searchButton.grid(row=1, column=1, sticky='nsew')
 
-        self._splitButton = tk.Button(self._methodsFrame, text='SPLIT', font='HELVETICA 30 bold', width=20, command=lambda: terminal(4), relief='raised')
+        self._splitButton = tk.Button(self._methodsFrame, text='(4) SPLIT', font='HELVETICA 30 bold', width=20, command=lambda: terminal(4), relief='raised')
         self._splitButton.grid(row=2, column=1, sticky='nsew')
 
-        self._sortButton = tk.Button(self._methodsFrame, text='SORT', font='HELVETICA 30 bold', width=20, command=lambda: terminal(5), relief='raised')
+        self._sortButton = tk.Button(self._methodsFrame, text='(5) SORT', font='HELVETICA 30 bold', width=20, command=lambda: terminal(5), relief='raised')
         self._sortButton.grid(row=1, column=2, sticky='nsew')
 
-        self._filterButton = tk.Button(self._methodsFrame, text='FILTER', font='HELVETICA 30 bold', width=20, command=lambda: terminal(6), relief='raised')
+        self._filterButton = tk.Button(self._methodsFrame, text='(6) FILTER', font='HELVETICA 30 bold', width=20, command=lambda: terminal(6), relief='raised')
         if self.get_DataType() == 'Boolean':
             self._filterButton.config(state='disabled')
         self._filterButton.grid(row=2, column=2, sticky='nsew')
@@ -532,7 +541,7 @@ class VisualArray:
         self._aLabel3.grid(row=2, column=0, sticky='nsw', columnspan=2)
 
         # Restart program and launch new array.
-        self._newArrayButton = tk.Button(self._bottomFrame, text='NEW ARRAY', font='HELVETICA 30 bold', width=20, command=lambda: restart())
+        self._newArrayButton = tk.Button(self._bottomFrame, text='(N) NEW ARRAY', font='HELVETICA 30 bold', width=20, command=lambda: restart())
         self._newArrayButton.grid(row=0, column=2, sticky='ew', padx=20, pady=5, rowspan=3)
 
         # Pack/Draw in the frames.
@@ -550,6 +559,13 @@ class VisualArray:
         self._listBox.bind('<<ListboxSelect>>', lambda cmd: tagger(1))
         self._listBox2.bind('<<ListboxSelect>>', lambda cmd: tagger(2))
         self._listBox3.bind('<<ListboxSelect>>', lambda cmd: tagger(3))
+        self.master.bind('1', lambda cmd: terminal(1))
+        self.master.bind('2', lambda cmd: terminal(2))
+        self.master.bind('3', lambda cmd: terminal(3))
+        self.master.bind('4', lambda cmd: terminal(4))
+        self.master.bind('5', lambda cmd: terminal(5))
+        self.master.bind('6', lambda cmd: terminal(6))
+        self.master.bind('<Key>', keyMonitor)
 
         self.master.mainloop()
 
@@ -1152,6 +1168,7 @@ class VisualArray:
         self.master.bind('<Return>', lambda cmd: popUp())
         self.master.mainloop()
 
+    # Method sorts the array and displays a copy of the sorted array to the user.
     def sort_(self, master):
         # Perform and save a copy of the sorted array. The actual original array in the arrayHub will not be affected, but rather a copy of the array is shown.
         self._sortedArray = np.sort(self.array)
@@ -1209,6 +1226,7 @@ class VisualArray:
         self.alpha.resizable(False, False)
         self.alpha.mainloop()
 
+    # Method filters the array with filter conditions provided by user, and displays filtered copy back to user.
     def filter_(self, master):
 
         def updateGUI(event):
