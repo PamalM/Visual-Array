@@ -11,7 +11,6 @@ Basic Run-down of the program:
 6] Depending on the method selected, the arrayHub will display a respective window for each method.
 """
 
-
 # Class is utilized to provide typography and color attributes to console outputs.
 class Console:
     purple = '\033[95m'
@@ -28,29 +27,35 @@ class Console:
     underline = '\033[4m'
     end = '\033[0m'
 
-
-# Try-Catch to ensure the user has the necessary libraries to execute this program.
+# Ensure that the user has the sufficient libraries to execute the program.
 try:
     print(Console.yellow + Console.bold + '\n[Welcome to Visual Array]\n' + Console.end)
     print(Console.bold + Console.cyan + '---------------------------------\n' + Console.end)
     print(Console.bold + Console.underline + Console.darkCyan + '[Attempting to import required libraries:]' + Console.end)
+
     # Numpy library allows us to create arrays that are much more space efficient and provide for better code-optimization.
     import numpy as np
     print(Console.brightBlue + '[Numpy]...' + Console.end)
+
     # Tkinter library allows us to visualize the the numpy array in a Graphical-User-Interface (GUI).
     import tkinter as tk
     print(Console.brightBlue + '[Tkinter]...' + Console.end)
+
     # Tabulate library is utilized for the console messages and debugging messages printed by the program during execution.
     # Provides for a clean console output, and better visual appeal to the user/programmer when debugging or running the program.
     from tabulate import tabulate
     print(Console.brightBlue + '[Tabulate]...' + Console.end)
+
     # Os library allows us to write (.txt) files to the user's desktop on their machine.
     import os
     print(Console.brightBlue + '[OS]...' + Console.end)
+
     import getpass
     print(Console.brightBlue + '[GetPass]...' + Console.end)
+
     import platform
     print(Console.brightBlue + '[Platform]...' + Console.end)
+
     print(Console.green + Console.underline + Console.darkCyan + '[Imports were successful!]\n' + Console.end)
 
 except ImportError:
@@ -1452,6 +1457,7 @@ class VisualArray:
 
 
 def main():
+    # Create tkinter window obj, and pass it into visual Array object constructor to begin execution.
     master = tk.Tk()
     visualArray = VisualArray(master)
     master.mainloop()
