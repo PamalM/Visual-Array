@@ -6,3 +6,10 @@ In addition, other libraries such as os, getpass, and platform were utilized to 
 
 Sample output for a 2 dimensional array:
 ![S1](https://github.com/PamalM/Visual-Array/blob/master/sample.png)
+
+Detailed console messages:
+![S5](https://github.com/PamalM/Visual-Array/blob/master/Sample%20Output/S5.png)
+![S6](https://github.com/PamalM/Visual-Array/blob/master/Sample%20Output/S6.png)
+
+Thank you for checking out my repo, please forward any and all suggestions to pamal13@hotmail.com
+I will be happy for any tips, or alternative solutions you may come up with. :) 
