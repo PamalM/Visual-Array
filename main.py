@@ -495,10 +495,6 @@ class VisualArray:
         self._label2 = tk.Label(self._methodsFrame, text='Array Methods:', fg='white', bg='black', font='Helvetica 24 bold')
         self._label2.grid(row=0, column=0, columnspan=3, sticky='nsew')
 
-        def keyMonitor(event):
-            if event.keysym == 'N' or 'n':
-                restart()
-
         # Array Method Buttons.
         self._insertButton = tk.Button(self._methodsFrame, text='(1) INSERT', font='HELVETICA 30 bold', width=20, command=lambda: terminal(1), relief='raised')
         self._insertButton.grid(row=1, column=0, sticky='nsew')
@@ -546,7 +542,7 @@ class VisualArray:
         self._aLabel3.grid(row=2, column=0, sticky='nsw', columnspan=2)
 
         # Restart program and launch new array.
-        self._newArrayButton = tk.Button(self._bottomFrame, text='(N) NEW ARRAY', font='HELVETICA 30 bold', width=20, command=lambda: restart())
+        self._newArrayButton = tk.Button(self._bottomFrame, text='NEW ARRAY', font='HELVETICA 30 bold', width=20, command=lambda: restart())
         self._newArrayButton.grid(row=0, column=2, sticky='ew', padx=20, pady=5, rowspan=3)
 
         # Pack/Draw in the frames.
@@ -570,8 +566,6 @@ class VisualArray:
         self.master.bind('4', lambda cmd: terminal(4))
         self.master.bind('5', lambda cmd: terminal(5))
         self.master.bind('6', lambda cmd: terminal(6))
-        self.master.bind('<Key>', keyMonitor)
-
         self.master.mainloop()
 
     # Method inserts element at given location in array.
